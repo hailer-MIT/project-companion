@@ -10,33 +10,212 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as ApplyRouteImport } from './routes/apply'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DemoRouteImport } from './routes/demo'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as TutorsRouteImport } from './routes/tutors'
+import { Route as DemoIndexRouteImport } from './routes/demo.index'
+import { Route as DemoAdminRouteImport } from './routes/demo.admin'
+import { Route as DemoParentRouteImport } from './routes/demo.parent'
+import { Route as DemoStudentRouteImport } from './routes/demo.student'
+import { Route as DemoTeacherRouteImport } from './routes/demo.teacher'
+import { Route as DemoTelegramRouteImport } from './routes/demo.telegram'
+import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApplyRoute = ApplyRouteImport.update({
+  id: '/apply',
+  path: '/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TutorsRoute = TutorsRouteImport.update({
+  id: '/tutors',
+  path: '/tutors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoIndexRoute = DemoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoAdminRoute = DemoAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoParentRoute = DemoParentRouteImport.update({
+  id: '/parent',
+  path: '/parent',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoStudentRoute = DemoStudentRouteImport.update({
+  id: '/student',
+  path: '/student',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoTeacherRoute = DemoTeacherRouteImport.update({
+  id: '/teacher',
+  path: '/teacher',
+  getParentRoute: () => DemoRoute,
+} as any)
+const DemoTelegramRoute = DemoTelegramRouteImport.update({
+  id: '/telegram',
+  path: '/telegram',
+  getParentRoute: () => DemoRoute,
+} as any)
+const ApiPublicTelegramWebhookRoute =
+  ApiPublicTelegramWebhookRouteImport.update({
+    id: '/api/public/telegram/webhook',
+    path: '/api/public/telegram/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/apply': typeof ApplyRoute
+  '/contact': typeof ContactRoute
+  '/demo': typeof DemoRouteWithChildren
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/tutors': typeof TutorsRoute
+  '/demo/admin': typeof DemoAdminRoute
+  '/demo/parent': typeof DemoParentRoute
+  '/demo/student': typeof DemoStudentRoute
+  '/demo/teacher': typeof DemoTeacherRoute
+  '/demo/telegram': typeof DemoTelegramRoute
+  '/demo/': typeof DemoIndexRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/apply': typeof ApplyRoute
+  '/contact': typeof ContactRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/tutors': typeof TutorsRoute
+  '/demo/admin': typeof DemoAdminRoute
+  '/demo/parent': typeof DemoParentRoute
+  '/demo/student': typeof DemoStudentRoute
+  '/demo/teacher': typeof DemoTeacherRoute
+  '/demo/telegram': typeof DemoTelegramRoute
+  '/demo': typeof DemoIndexRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/apply': typeof ApplyRoute
+  '/contact': typeof ContactRoute
+  '/demo': typeof DemoRouteWithChildren
+  '/how-it-works': typeof HowItWorksRoute
+  '/pricing': typeof PricingRoute
+  '/tutors': typeof TutorsRoute
+  '/demo/admin': typeof DemoAdminRoute
+  '/demo/parent': typeof DemoParentRoute
+  '/demo/student': typeof DemoStudentRoute
+  '/demo/teacher': typeof DemoTeacherRoute
+  '/demo/telegram': typeof DemoTelegramRoute
+  '/demo/': typeof DemoIndexRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/apply'
+    | '/contact'
+    | '/demo'
+    | '/how-it-works'
+    | '/pricing'
+    | '/tutors'
+    | '/demo/admin'
+    | '/demo/parent'
+    | '/demo/student'
+    | '/demo/teacher'
+    | '/demo/telegram'
+    | '/demo/'
+    | '/api/public/telegram/webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/apply'
+    | '/contact'
+    | '/how-it-works'
+    | '/pricing'
+    | '/tutors'
+    | '/demo/admin'
+    | '/demo/parent'
+    | '/demo/student'
+    | '/demo/teacher'
+    | '/demo/telegram'
+    | '/demo'
+    | '/api/public/telegram/webhook'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/apply'
+    | '/contact'
+    | '/demo'
+    | '/how-it-works'
+    | '/pricing'
+    | '/tutors'
+    | '/demo/admin'
+    | '/demo/parent'
+    | '/demo/student'
+    | '/demo/teacher'
+    | '/demo/telegram'
+    | '/demo/'
+    | '/api/public/telegram/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  ApplyRoute: typeof ApplyRoute
+  ContactRoute: typeof ContactRoute
+  DemoRoute: typeof DemoRouteWithChildren
+  HowItWorksRoute: typeof HowItWorksRoute
+  PricingRoute: typeof PricingRoute
+  TutorsRoute: typeof TutorsRoute
+  ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +227,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apply': {
+      id: '/apply'
+      path: '/apply'
+      fullPath: '/apply'
+      preLoaderRoute: typeof ApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tutors': {
+      id: '/tutors'
+      path: '/tutors'
+      fullPath: '/tutors'
+      preLoaderRoute: typeof TutorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/': {
+      id: '/demo/'
+      path: '/'
+      fullPath: '/demo/'
+      preLoaderRoute: typeof DemoIndexRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/admin': {
+      id: '/demo/admin'
+      path: '/admin'
+      fullPath: '/demo/admin'
+      preLoaderRoute: typeof DemoAdminRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/parent': {
+      id: '/demo/parent'
+      path: '/parent'
+      fullPath: '/demo/parent'
+      preLoaderRoute: typeof DemoParentRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/student': {
+      id: '/demo/student'
+      path: '/student'
+      fullPath: '/demo/student'
+      preLoaderRoute: typeof DemoStudentRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/teacher': {
+      id: '/demo/teacher'
+      path: '/teacher'
+      fullPath: '/demo/teacher'
+      preLoaderRoute: typeof DemoTeacherRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/demo/telegram': {
+      id: '/demo/telegram'
+      path: '/telegram'
+      fullPath: '/demo/telegram'
+      preLoaderRoute: typeof DemoTelegramRouteImport
+      parentRoute: typeof DemoRoute
+    }
+    '/api/public/telegram/webhook': {
+      id: '/api/public/telegram/webhook'
+      path: '/api/public/telegram/webhook'
+      fullPath: '/api/public/telegram/webhook'
+      preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface DemoRouteChildren {
+  DemoAdminRoute: typeof DemoAdminRoute
+  DemoParentRoute: typeof DemoParentRoute
+  DemoStudentRoute: typeof DemoStudentRoute
+  DemoTeacherRoute: typeof DemoTeacherRoute
+  DemoTelegramRoute: typeof DemoTelegramRoute
+  DemoIndexRoute: typeof DemoIndexRoute
+}
+
+const DemoRouteChildren: DemoRouteChildren = {
+  DemoAdminRoute: DemoAdminRoute,
+  DemoParentRoute: DemoParentRoute,
+  DemoStudentRoute: DemoStudentRoute,
+  DemoTeacherRoute: DemoTeacherRoute,
+  DemoTelegramRoute: DemoTelegramRoute,
+  DemoIndexRoute: DemoIndexRoute,
+}
+
+const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  ApplyRoute: ApplyRoute,
+  ContactRoute: ContactRoute,
+  DemoRoute: DemoRouteWithChildren,
+  HowItWorksRoute: HowItWorksRoute,
+  PricingRoute: PricingRoute,
+  TutorsRoute: TutorsRoute,
+  ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
