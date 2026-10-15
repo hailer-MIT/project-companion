@@ -10,7 +10,8 @@
 <!-- LOVABLE:END -->
 
 ## Project rules
-- Demo data lives in `src/lib/demo-data.ts`; the current build is a clickable demo with no backend — replace with Lovable Cloud tables when v1 starts.
+- Demo data lives in `src/lib/demo-data.ts`; real data (Telegram chats/messages, tutor applications) lives in Lovable Cloud tables that are service-role only — browser reaches them via server functions in src/lib/*.functions.ts.
 - Public marketing pages wrap content in `PublicPage` (src/components/site-chrome.tsx); role dashboards live under the `/demo` layout route so the sidebar is shared.
-- Telegram bot: webhook at src/routes/api/public/telegram/webhook.ts (calls api.telegram.org directly with TELEGRAM_BOT_TOKEN; webhook secret derived from it), bot logic in src/lib/telegram.server.ts; tables are service-role only — browser goes through server functions.
+- Telegram bot: webhook at src/routes/api/public/telegram/webhook.ts (calls Telegram through the Lovable connector gateway with LOVABLE_API_KEY + TELEGRAM_API_KEY; webhook secret derived from TELEGRAM_API_KEY), bot logic in src/lib/telegram.server.ts; tables are service-role only — browser goes through server functions.
+- Admin demo endpoints have no login yet — add admin auth before real use.
 - Railway/Node deploys use `build:node` (NITRO_PRESET=node-server); see DEPLOY.md — default build targets Cloudflare.
