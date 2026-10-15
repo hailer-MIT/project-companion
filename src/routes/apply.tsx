@@ -38,8 +38,8 @@ function Apply() {
     setBusy(true);
     try {
       await submit({ data: {
-        full_name: String(saved.full_name ?? ""), phone: String(saved.phone ?? ""), telegram: String(saved.telegram ?? ""),
-        subjects: picked, years_experience: Number(saved.years_experience ?? 0), bio: String(saved.bio ?? ""),
+        full_name: String(saved["full_name"] ?? ""), phone: String(saved["phone"] ?? ""), telegram: String(saved["telegram"] ?? ""),
+        subjects: picked, years_experience: Number(saved["years_experience"] ?? 0), bio: String(saved["bio"] ?? ""),
         references_text: String(f.get("references_text") ?? ""),
       } });
       setStep(4);
@@ -64,17 +64,17 @@ function Apply() {
             <div className="flex gap-2">{[1, 2, 3].map((s) => <div key={s} className={`h-1.5 flex-1 rounded-full ${s <= step ? "bg-primary" : "bg-muted"}`} />)}</div>
             {step === 1 && (<>
               <h2 className="text-xl font-semibold">About you</h2>
-              <div className="space-y-2"><Label>Full name</Label><Input name="full_name" value={saved.full_name ?? ""} onChange={keep} required /></div>
-              <div className="space-y-2"><Label>Phone</Label><Input name="phone" value={saved.phone ?? ""} onChange={keep} required placeholder="+251…" /></div>
-              <div className="space-y-2"><Label>Telegram username</Label><Input name="telegram" value={saved.telegram ?? ""} onChange={keep} placeholder="@username" /></div>
+              <div className="space-y-2"><Label>Full name</Label><Input name="full_name" value={saved["full_name"] ?? ""} onChange={keep} required /></div>
+              <div className="space-y-2"><Label>Phone</Label><Input name="phone" value={saved["phone"] ?? ""} onChange={keep} required placeholder="+251…" /></div>
+              <div className="space-y-2"><Label>Telegram username</Label><Input name="telegram" value={saved["telegram"] ?? ""} onChange={keep} placeholder="@username" /></div>
             </>)}
             {step === 2 && (<>
               <h2 className="text-xl font-semibold">What you teach</h2>
               <div className="flex flex-wrap gap-2">{disciplines.map((d) => (
                 <button type="button" key={d} onClick={() => setPicked(picked.includes(d) ? picked.filter((x) => x !== d) : [...picked, d])} className={`rounded-full border px-3 py-1.5 text-sm ${picked.includes(d) ? "border-primary bg-primary text-primary-foreground" : ""}`}>{d}</button>
               ))}</div>
-              <div className="space-y-2"><Label>Years of experience</Label><Input name="years_experience" value={saved.years_experience ?? ""} onChange={keep} type="number" min={0} required /></div>
-              <div className="space-y-2"><Label>Short bio</Label><Textarea name="bio" value={saved.bio ?? ""} onChange={keep} rows={4} /></div>
+              <div className="space-y-2"><Label>Years of experience</Label><Input name="years_experience" value={saved["years_experience"] ?? ""} onChange={keep} type="number" min={0} required /></div>
+              <div className="space-y-2"><Label>Short bio</Label><Textarea name="bio" value={saved["bio"] ?? ""} onChange={keep} rows={4} /></div>
             </>)}
             {step === 3 && (<>
               <h2 className="text-xl font-semibold">Documents & references</h2>
