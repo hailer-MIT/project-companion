@@ -14,7 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      telegram_chats: {
+        Row: {
+          chat_id: number
+          first_name: string | null
+          last_seen_at: string
+          linked_at: string
+          username: string | null
+        }
+        Insert: {
+          chat_id: number
+          first_name?: string | null
+          last_seen_at?: string
+          linked_at?: string
+          username?: string | null
+        }
+        Update: {
+          chat_id?: number
+          first_name?: string | null
+          last_seen_at?: string
+          linked_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      telegram_messages: {
+        Row: {
+          chat_id: number
+          created_at: string
+          raw_update: Json
+          text: string | null
+          update_id: number
+        }
+        Insert: {
+          chat_id: number
+          created_at?: string
+          raw_update: Json
+          text?: string | null
+          update_id: number
+        }
+        Update: {
+          chat_id?: number
+          created_at?: string
+          raw_update?: Json
+          text?: string | null
+          update_id?: number
+        }
+        Relationships: []
+      }
+      tutor_applications: {
+        Row: {
+          bio: string | null
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          references_text: string | null
+          status: string
+          subjects: string[]
+          telegram: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          references_text?: string | null
+          status?: string
+          subjects?: string[]
+          telegram?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          references_text?: string | null
+          status?: string
+          subjects?: string[]
+          telegram?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
