@@ -15,6 +15,8 @@ const appSchema = z.object({
 export const submitApplication = createServerFn({ method: "POST" })
   .inputValidator((d) => appSchema.parse(d))
   .handler(async ({ data }) => {
+    const { hasDb } = await import("./telegram.server");
+    if (!hasDb()) return { ok: true, demo: true }; // static demo mode: nothing stored
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("tutor_applications").insert(data);
     if (error) throw new Error(error.message);
@@ -23,6 +25,8 @@ export const submitApplication = createServerFn({ method: "POST" })
 
 // Demo-only (no admin login yet): lists the newest applications.
 export const listApplications = createServerFn({ method: "GET" }).handler(async () => {
+  const { hasDb } = await import("./telegram.server");
+  if (!hasDb()) return [];
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("tutor_applications")

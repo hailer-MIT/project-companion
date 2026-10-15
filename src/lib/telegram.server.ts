@@ -1,9 +1,17 @@
 import { createHash } from "crypto";
 
+// Two modes: Lovable (connector gateway, TELEGRAM_API_KEY) or self-hosted e.g. Railway (TELEGRAM_BOT_TOKEN, direct).
+function directToken(): string | undefined {
+  return process.env["TELEGRAM_BOT_TOKEN"] || undefined;
+}
 function connKey(): string {
-  const k = process.env["TELEGRAM_API_KEY"];
-  if (!k) throw new Error("TELEGRAM_API_KEY is not configured");
+  const k = directToken() ?? process.env["TELEGRAM_API_KEY"];
+  if (!k) throw new Error("TELEGRAM_BOT_TOKEN or TELEGRAM_API_KEY is not configured");
   return k;
+}
+// True when the server has database access; without it the app runs in static demo mode.
+export function hasDb(): boolean {
+  return Boolean(process.env["SUPABASE_URL"] && process.env["SUPABASE_SERVICE_ROLE_KEY"]);
 }
 
 // Secret Telegram echoes in X-Telegram-Bot-Api-Secret-Token; derived from the connection key.
@@ -15,13 +23,23 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/telegram";
 
 // Telegram Bot API call through the Lovable connector gateway.
 export async function tg(method: string, body: Record<string, unknown>) {
-  const lovableKey = process.env["LOVABLE_API_KEY"];
-  if (!lovableKey) throw new Error("LOVABLE_API_KEY is not configured");
-  const res = await fetch(`${GATEWAY_URL}/${method}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": connKey(), "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  const token = directToken();
+  let res: Response;
+  if (token) {
+    res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } else {
+    const lovableKey = process.env["LOVABLE_API_KEY"];
+    if (!lovableKey) throw new Error("LOVABLE_API_KEY is not configured");
+    res = await fetch(`${GATEWAY_URL}/${method}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": connKey(), "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  }
   const text = await res.text();
   if (!res.ok) throw new Error(`Telegram ${method} failed [${res.status}]: ${text}`);
   const json = JSON.parse(text) as { ok: boolean; description?: string; result?: unknown };

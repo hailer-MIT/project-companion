@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "crypto";
-import { sendScreen, tg, webhookSecret } from "@/lib/telegram.server";
+import { hasDb, sendScreen, tg, webhookSecret } from "@/lib/telegram.server";
 
 function safeEqual(a: string, b: string) {
   const l = Buffer.from(a);
@@ -25,30 +25,32 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         const update = (await request.json()) as Update;
         if (typeof update.update_id !== "number") return Response.json({ ok: true });
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const chatId = update.message?.chat.id ?? update.callback_query?.message?.chat.id;
         const from = update.message?.from ?? update.callback_query?.from;
         if (!chatId) return Response.json({ ok: true });
 
-        // Idempotency: Telegram retries; skip already-processed updates.
-        const { error: insErr } = await supabaseAdmin.from("telegram_messages").insert({
-          update_id: update.update_id,
-          chat_id: chatId,
-          text: update.message?.text ?? update.callback_query?.data ?? null,
-          raw_update: update as never,
-        });
-        if (insErr) {
-          if (insErr.code === "23505") return Response.json({ ok: true, duplicate: true });
-          console.error(insErr);
-          return Response.json({ error: insErr.message }, { status: 500 });
+        // Storage is optional: skipped in static demo mode (no database configured).
+        if (hasDb()) {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          // Idempotency: Telegram retries; skip already-processed updates.
+          const { error: insErr } = await supabaseAdmin.from("telegram_messages").insert({
+            update_id: update.update_id,
+            chat_id: chatId,
+            text: update.message?.text ?? update.callback_query?.data ?? null,
+            raw_update: update as never,
+          });
+          if (insErr) {
+            if (insErr.code === "23505") return Response.json({ ok: true, duplicate: true });
+            console.error(insErr);
+            return Response.json({ error: insErr.message }, { status: 500 });
+          }
+          await supabaseAdmin.from("telegram_chats").upsert({
+            chat_id: chatId,
+            first_name: from?.first_name ?? null,
+            username: from?.username ?? null,
+            last_seen_at: new Date().toISOString(),
+          });
         }
-
-        await supabaseAdmin.from("telegram_chats").upsert({
-          chat_id: chatId,
-          first_name: from?.first_name ?? null,
-          username: from?.username ?? null,
-          last_seen_at: new Date().toISOString(),
-        });
 
         try {
           if (update.callback_query) {
