@@ -1,21 +1,25 @@
 import { createHash } from "crypto";
 
-function botToken(): string {
-  const t = process.env["TELEGRAM_BOT_TOKEN"];
-  if (!t) throw new Error("TELEGRAM_BOT_TOKEN is not configured");
-  return t;
+function connKey(): string {
+  const k = process.env["TELEGRAM_API_KEY"];
+  if (!k) throw new Error("TELEGRAM_API_KEY is not configured");
+  return k;
 }
 
-// Secret Telegram echoes in X-Telegram-Bot-Api-Secret-Token; derived so no extra env var is needed.
+// Secret Telegram echoes in X-Telegram-Bot-Api-Secret-Token; derived from the connection key.
 export function webhookSecret(): string {
-  return createHash("sha256").update(`telegram-webhook:${botToken()}`).digest("base64url");
+  return createHash("sha256").update(`telegram-webhook:${connKey()}`).digest("base64url");
 }
 
-// Direct Telegram Bot API call (portable: works on Lovable, Railway, anywhere).
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/telegram";
+
+// Telegram Bot API call through the Lovable connector gateway.
 export async function tg(method: string, body: Record<string, unknown>) {
-  const res = await fetch(`https://api.telegram.org/bot${botToken()}/${method}`, {
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  if (!lovableKey) throw new Error("LOVABLE_API_KEY is not configured");
+  const res = await fetch(`${GATEWAY_URL}/${method}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": connKey(), "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   const text = await res.text();
