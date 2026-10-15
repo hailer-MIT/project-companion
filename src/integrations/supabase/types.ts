@@ -14,54 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      telegram_chats: {
-        Row: {
-          chat_id: number
-          first_name: string | null
-          last_seen_at: string
-          linked_at: string
-          username: string | null
-        }
-        Insert: {
-          chat_id: number
-          first_name?: string | null
-          last_seen_at?: string
-          linked_at?: string
-          username?: string | null
-        }
-        Update: {
-          chat_id?: number
-          first_name?: string | null
-          last_seen_at?: string
-          linked_at?: string
-          username?: string | null
-        }
-        Relationships: []
-      }
-      telegram_messages: {
-        Row: {
-          chat_id: number
-          created_at: string
-          raw_update: Json
-          text: string | null
-          update_id: number
-        }
-        Insert: {
-          chat_id: number
-          created_at?: string
-          raw_update: Json
-          text?: string | null
-          update_id: number
-        }
-        Update: {
-          chat_id?: number
-          created_at?: string
-          raw_update?: Json
-          text?: string | null
-          update_id?: number
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
