@@ -5,6 +5,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DashHeader, Panel, Stat, StatusBadge } from "@/components/dash";
 import { applications, COMMISSION, payments } from "@/lib/demo-data";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { listApplications, setApplicationStatus } from "@/lib/applications.functions";
 
 export const Route = createFileRoute("/demo/admin")({
   component: Admin,
@@ -58,6 +61,8 @@ function Admin() {
         </div>
       </Panel>
 
+      <RealApplications />
+
       <Panel title="Payments & disputes">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -78,5 +83,41 @@ function Admin() {
         </div>
       </Panel>
     </div>
+  );
+}
+
+function RealApplications() {
+  const list = useServerFn(listApplications);
+  const setStatus = useServerFn(setApplicationStatus);
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({ queryKey: ["applications"], queryFn: () => list() });
+  const act = async (id: string, status: "approved" | "rejected") => {
+    await setStatus({ data: { id, status } });
+    toast.success(`Application ${status}`);
+    qc.invalidateQueries({ queryKey: ["applications"] });
+  };
+  return (
+    <Panel title="Real applications (from the Apply page)">
+      {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : !data?.length ? (
+        <p className="text-sm text-muted-foreground">No applications yet. Submit one on the "Teach with us" page to see it here.</p>
+      ) : (
+        <ul className="divide-y">
+          {data.map((a) => (
+            <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+              <div>
+                <p className="font-medium">{a.full_name}</p>
+                <p className="text-xs text-muted-foreground">{a.subjects.join(", ") || "No subjects"} · {a.years_experience ?? 0} years{a.telegram ? ` · ${a.telegram}` : ""} · {new Date(a.created_at).toLocaleDateString()}</p>
+              </div>
+              {a.status === "pending" ? (
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => act(a.id, "approved")}>Approve</Button>
+                  <Button size="sm" variant="outline" onClick={() => act(a.id, "rejected")}>Reject</Button>
+                </div>
+              ) : <span className="text-sm capitalize text-muted-foreground">{a.status}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Panel>
   );
 }
