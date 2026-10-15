@@ -26,7 +26,17 @@ Redeploy after saving variables (Deployments → ⋯ → Redeploy).
 
 ## 4. Point the bot at Vercel
 A bot can talk to only one site at a time — this moves it away from the Lovable version.
-On your computer (needs Node 18+), inside the downloaded repo:
+**Easiest way — no commands needed:** paste this into your browser's address bar
+(replace `<your token>` with the BotFather token and the URL with your Vercel URL) and press Enter:
+
+```
+https://api.telegram.org/bot<your token>/setWebhook?url=https://bright-path.vercel.app/api/public/telegram/webhook
+```
+
+You should see `{"ok":true,...}` on the page. That's it — the bot now talks to Vercel.
+
+**Alternative — from a terminal on your computer** (needs Node 18+ installed, inside the downloaded repo):
+
 ```bash
 TELEGRAM_BOT_TOKEN=<your token> node scripts/set-telegram-webhook.mjs https://bright-path.vercel.app
 ```
