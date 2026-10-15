@@ -3,6 +3,8 @@ import { z } from "zod";
 
 // Demo-only: no auth yet. Only targets chats that already messaged the bot.
 export const listTelegramChats = createServerFn({ method: "GET" }).handler(async () => {
+  const { hasDb } = await import("./telegram.server");
+  if (!hasDb()) return [];
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("telegram_chats")
@@ -22,10 +24,11 @@ const kinds = {
 export const sendDemoNotification = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ chatId: z.number().int(), kind: z.enum(["reminder", "receipt", "missed"]) }).parse(d))
   .handler(async ({ data }) => {
+    const { tg, keyboard, hasDb } = await import("./telegram.server");
+    if (!hasDb()) throw new Error("Live notifications need a database");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: chat } = await supabaseAdmin.from("telegram_chats").select("chat_id").eq("chat_id", data.chatId).maybeSingle();
     if (!chat) throw new Error("Chat not linked");
-    const { tg, keyboard } = await import("./telegram.server");
     await tg("sendMessage", { chat_id: data.chatId, text: kinds[data.kind], reply_markup: keyboard([["📅 My sessions", "sessions"], ["⬅️ Menu", "menu"]]) });
     return { ok: true };
   });
