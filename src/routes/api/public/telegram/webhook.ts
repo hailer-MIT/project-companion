@@ -15,6 +15,111 @@ type Update = {
   callback_query?: { id: string; data?: string; from: TgUser; message?: { chat: { id: number } } };
 };
 
+function cmdOf(text: string): string {
+  // "/start@BotName extra" → "/start"
+  return text.trim().split(/\s+/)[0]!.split("@")[0]!.toLowerCase();
+}
+
+// Handle a button press. Saves payment/reschedule requests, opens support Q&A.
+async function onCallback(chatId: number, data: string) {
+  if (!hasDb()) {
+    await sendScreen(chatId, data);
+    return;
+  }
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  if (data === "support") {
+    // Next free-text message becomes a support question (admin dashboard).
+    await supabaseAdmin.from("telegram_chats").update({ pending_action: "support" }).eq("chat_id", chatId);
+    await sendScreen(chatId, "support");
+    return;
+  }
+  if (data === "paid") {
+    await supabaseAdmin.from("bot_requests").insert({
+      chat_id: chatId,
+      kind: "payment",
+      body: "Says they paid 450 ETB via Telebirr — ref BPT-3021 (Thu Physics session). Confirm and send a receipt.",
+    });
+    await sendScreen(chatId, "paid");
+    return;
+  }
+  if (data === "slot_fri" || data === "slot_sat") {
+    const label = data === "slot_fri" ? "Fri 16:00" : "Sat 10:00";
+    await supabaseAdmin.from("bot_requests").insert({
+      chat_id: chatId,
+      kind: "reschedule",
+      body: `Asked to move the session to ${label}. Confirm with the tutor.`,
+    });
+    await sendScreen(chatId, data);
+    return;
+  }
+  await sendScreen(chatId, data);
+}
+
+// Handle a text message: commands first, then support answers / free text.
+async function onText(chatId: number, name: string, text: string) {
+  const db = hasDb();
+  const cmd = cmdOf(text);
+  switch (cmd) {
+    case "/start":
+      await sendScreen(chatId, "menu", `Hi ${name} 👋 Welcome to Bright Path Tutors (demo, sample data).\n\n`);
+      return;
+    case "/menu":
+      await sendScreen(chatId, "menu");
+      return;
+    case "/sessions":
+      await sendScreen(chatId, "sessions", "", name);
+      return;
+    case "/report":
+      await sendScreen(chatId, "report", "", name);
+      return;
+    case "/help":
+      await sendScreen(chatId, "help");
+      return;
+    case "/support":
+      await onCallback(chatId, "support");
+      return;
+    case "/admin": {
+      // Demo-only admin link (the admin pages have no login yet).
+      if (!db) {
+        await sendScreen(chatId, "menu");
+        return;
+      }
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("telegram_chats").update({ is_admin: true, pending_action: null }).eq("chat_id", chatId);
+      await tg("sendMessage", {
+        chat_id: chatId,
+        text: "✅ This chat is now linked as an admin. You'll get a message here whenever a tutor applies or a parent sends a request.",
+        reply_markup: { inline_keyboard: [[{ text: "📅 My sessions", callback_data: "sessions" }]] },
+      });
+      return;
+    }
+  }
+
+  // Free text
+  if (db) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: chat } = await supabaseAdmin
+      .from("telegram_chats")
+      .select("pending_action")
+      .eq("chat_id", chatId)
+      .maybeSingle();
+    if (chat?.pending_action === "support") {
+      await supabaseAdmin.from("telegram_chats").update({ pending_action: null }).eq("chat_id", chatId);
+      await supabaseAdmin.from("bot_requests").insert({ chat_id: chatId, kind: "support", body: text.slice(0, 1000) });
+      await tg("sendMessage", {
+        chat_id: chatId,
+        text: `Thanks ${name}! Your question is with an admin now — we'll reply here within a few hours. 🙏`,
+      });
+      return;
+    }
+  }
+  await tg("sendMessage", {
+    chat_id: chatId,
+    text: "Got it ✅ An admin will reply here soon.\nTip: type /menu to see everything the bot can do.",
+  });
+  await sendScreen(chatId, "menu");
+}
+
 export const Route = createFileRoute("/api/public/telegram/webhook")({
   server: {
     handlers: {
@@ -54,13 +159,15 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
 
         try {
           if (update.callback_query) {
-            await tg("answerCallbackQuery", { callback_query_id: update.callback_query.id });
-            await sendScreen(chatId, update.callback_query.data ?? "menu");
-          } else if (update.message?.text?.startsWith("/start")) {
-            await sendScreen(chatId, "menu", `Hi ${from?.first_name ?? "there"} 👋 Welcome to Bright Path Tutors (demo, sample data).\n\n`);
+            // Best effort: never let a stale callback ID block the actual reply.
+            try {
+              await tg("answerCallbackQuery", { callback_query_id: update.callback_query.id });
+            } catch {
+              // ignore
+            }
+            await onCallback(chatId, update.callback_query.data ?? "menu");
           } else if (update.message?.text) {
-            await tg("sendMessage", { chat_id: chatId, text: "Got it ✅ An admin will reply here soon." });
-            await sendScreen(chatId, "menu");
+            await onText(chatId, from?.first_name ?? "there", update.message.text);
           }
         } catch (e) {
           console.error(e);

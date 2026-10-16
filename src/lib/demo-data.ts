@@ -25,9 +25,9 @@ export const tutors: Tutor[] = [
 ];
 
 export const testimonials = [
-  { name: "Almaz K.", role: "Parent, Bole", text: "For the first time I can see whether my son actually attended and what he learned. The weekly Telegram summary is gold." },
+  { name: "Almaz K.", role: "Parent, Bole", text: "For the first time I can see whether my son actually attended and what he learned. The weekly Telegram summary is gold.", textAm: "ልጄ በእውነቱ ክፍል መቀጠሉንና ምን እንደተማረ ለመጀመሪያ ጊዜ ማየት ችያለሁ። የሳምንቱ የቴሌግራም ሪፖርት በጣም ጠቃሚ ነው።" },
   { name: "Ruth T.", role: "Grade 11 student", text: "Dawit explained physics in a way my school never did. My exam result went from 58 to 81." },
-  { name: "Samuel G.", role: "Parent of two", text: "Paying through the platform means no awkward cash conversations, and I get a receipt every time." },
+  { name: "Samuel G.", role: "Parent of two", text: "Paying through the platform means no awkward cash conversations, and I get a receipt every time.", textAm: "በመድረኩ በኩል መክፈል የገንዘብ ውይይትን ያስወግዳል፤ በየጊዜውም ደረሰኝ አገኛለሁ።" },
 ];
 
 export const upcomingSessions = [

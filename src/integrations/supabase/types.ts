@@ -14,26 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      bot_requests: {
+        Row: {
+          body: string | null
+          chat_id: number
+          created_at: string
+          id: string
+          kind: string
+          status: string
+        }
+        Insert: {
+          body?: string | null
+          chat_id: number
+          created_at?: string
+          id?: string
+          kind: string
+          status?: string
+        }
+        Update: {
+          body?: string | null
+          chat_id?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          status?: string
+        }
+        Relationships: []
+      }
       telegram_chats: {
         Row: {
           chat_id: number
           first_name: string | null
+          is_admin: boolean
           last_seen_at: string
           linked_at: string
+          pending_action: string | null
           username: string | null
         }
         Insert: {
           chat_id: number
           first_name?: string | null
+          is_admin?: boolean
           last_seen_at?: string
           linked_at?: string
+          pending_action?: string | null
           username?: string | null
         }
         Update: {
           chat_id?: number
           first_name?: string | null
+          is_admin?: boolean
           last_seen_at?: string
           linked_at?: string
+          pending_action?: string | null
           username?: string | null
         }
         Relationships: []
