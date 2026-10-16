@@ -14,8 +14,11 @@ export function hasDb(): boolean {
   return Boolean(process.env["SUPABASE_URL"] && process.env["SUPABASE_SERVICE_ROLE_KEY"]);
 }
 
-// Secret Telegram echoes in X-Telegram-Bot-Api-Secret-Token; derived from the connection key.
+// Secret Telegram echoes in X-Telegram-Bot-Api-Secret-Token. TELEGRAM_WEBHOOK_SECRET (self-hosted,
+// set by hand in the setWebhook URL) wins; otherwise derived from the connection key.
 export function webhookSecret(): string {
+  const manual = process.env["TELEGRAM_WEBHOOK_SECRET"];
+  if (manual) return manual;
   return createHash("sha256").update(`telegram-webhook:${connKey()}`).digest("base64url");
 }
 
