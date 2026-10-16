@@ -101,7 +101,8 @@ function Home() {
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {testimonials.map((t) => (
             <figure key={t.name} className="rounded-2xl bg-primary p-6 text-primary-foreground">
-              <blockquote className="font-display text-lg leading-snug">“{t.text}”</blockquote>
+              <blockquote className="font-display text-lg leading-snug">“{t.textAm ?? t.text}”</blockquote>
+              {t.textAm && <p className="mt-2 text-sm leading-snug opacity-75">{t.text}</p>}
               <figcaption className="mt-4 text-sm opacity-80">{t.name} · {t.role}</figcaption>
             </figure>
           ))}
