@@ -81,6 +81,10 @@ export const screens: Record<string, Screen> = {
   slot_fri: { text: "Request for Fri 16:00 sent to Dawit. We'll confirm here. ✅", buttons: [["⬅️ Menu", "menu"]] },
   slot_sat: { text: "Request for Sat 10:00 sent to Dawit. We'll confirm here. ✅", buttons: [["⬅️ Menu", "menu"]] },
   support: { text: "Write your question below and an admin will reply here within a few hours.", buttons: [["⬅️ Menu", "menu"]] },
+  help: {
+    text: "Here's everything I can do:\n📅 /sessions — upcoming sessions\n📊 /report — weekly progress\n🆘 /support — ask us anything\n/menu — start over any time",
+    buttons: [["📅 My sessions", "sessions"], ["🆘 Support", "support"]],
+  },
 };
 
 export function keyboard(buttons: [string, string][]) {
@@ -91,7 +95,9 @@ export function keyboard(buttons: [string, string][]) {
   return { inline_keyboard: rows };
 }
 
-export async function sendScreen(chatId: number, key: string, prefix = "") {
+export async function sendScreen(chatId: number, key: string, prefix = "", name?: string) {
   const s = screens[key] ?? (screens["menu"] as Screen);
-  return tg("sendMessage", { chat_id: chatId, text: prefix + s.text, reply_markup: keyboard(s.buttons) });
+  // Personalize the sample data with the real person's first name.
+  const text = name ? s.text.replaceAll("Ruth", name) : s.text;
+  return tg("sendMessage", { chat_id: chatId, text: prefix + text, reply_markup: keyboard(s.buttons) });
 }
