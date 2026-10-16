@@ -159,7 +159,12 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
 
         try {
           if (update.callback_query) {
-            await tg("answerCallbackQuery", { callback_query_id: update.callback_query.id });
+            // Best effort: never let a stale callback ID block the actual reply.
+            try {
+              await tg("answerCallbackQuery", { callback_query_id: update.callback_query.id });
+            } catch {
+              // ignore
+            }
             await onCallback(chatId, update.callback_query.data ?? "menu");
           } else if (update.message?.text) {
             await onText(chatId, from?.first_name ?? "there", update.message.text);
