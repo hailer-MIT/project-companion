@@ -26,10 +26,10 @@ function Contact() {
       <PageIntro eyebrow="Contact" title="Talk to us" text="Questions about tutors, pricing or partnerships — we reply within a day." />
       <section className="mx-auto grid max-w-6xl gap-10 px-4 md:grid-cols-2">
         <div className="space-y-4 text-sm">
-          <p className="flex gap-3"><MapPin className="h-5 w-5 text-primary" /> Bole, Addis Ababa (placeholder)</p>
-          <p className="flex gap-3"><Phone className="h-5 w-5 text-primary" /> +251 9XX XXX XXX (placeholder)</p>
-          <p className="flex gap-3"><Mail className="h-5 w-5 text-primary" /> hello@brightpath.example</p>
-          <p className="flex gap-3"><Send className="h-5 w-5 text-primary" /> @BrightPathTutorsBot (placeholder)</p>
+          <p className="flex gap-3"><MapPin className="h-5 w-5 text-primary" /> Megenagna, Addis Ababa, Ethiopia</p>
+          <p className="flex gap-3"><Phone className="h-5 w-5 text-primary" /> <a href="tel:+251944133668" className="hover:underline">+251 94 413 3668</a></p>
+          <p className="flex gap-3"><Mail className="h-5 w-5 text-primary" /> <a href="mailto:support@brightpathtutors.com" className="hover:underline">support@brightpathtutors.com</a></p>
+          <p className="flex gap-3"><Send className="h-5 w-5 text-primary" /> <a href="https://t.me/BrightPathTutors_Bot" target="_blank" rel="noreferrer" className="hover:underline">@BrightPathTutors_Bot</a></p>
         </div>
         <form className="space-y-3 rounded-2xl border bg-card p-6" onSubmit={(e) => { e.preventDefault(); toast.success("Demo: message sent"); (e.target as HTMLFormElement).reset(); }}>
           <Input placeholder="Your name" required />

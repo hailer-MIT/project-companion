@@ -20,6 +20,7 @@ Lovable: Project settings → Git → Connect → choose your GitHub account. A 
 | Name | Value |
 |---|---|
 | `TELEGRAM_BOT_TOKEN` | Your bot token from @BotFather (`/mybots` → bot → API Token) |
+| `TELEGRAM_WEBHOOK_SECRET` | Any password you invent, letters/numbers only, e.g. `BrightPath2026secret` |
 
 Do **not** add any database variables — leaving them out turns on static demo mode.
 Redeploy after saving variables (Deployments → ⋯ → Redeploy).
@@ -27,11 +28,12 @@ Redeploy after saving variables (Deployments → ⋯ → Redeploy).
 ## 4. Point the bot at Vercel
 A bot can talk to only one site at a time — this moves it away from the Lovable version.
 **Easiest way — no commands needed:** paste this into your browser's address bar
-(replace `<your token>` with the BotFather token and the URL with your Vercel URL) and press Enter:
+(replace `<your token>`, the URL, and `<your secret>` with the same `TELEGRAM_WEBHOOK_SECRET` value) and press Enter:
 
 ```
-https://api.telegram.org/bot<your token>/setWebhook?url=https://bright-path.vercel.app/api/public/telegram/webhook
+https://api.telegram.org/bot<your token>/setWebhook?url=https://brightpathtutors.vercel.app/api/public/telegram/webhook&secret_token=<your secret>&drop_pending_updates=true
 ```
+The secret must match exactly, otherwise the site rejects the bot's messages ("401 Unauthorized").
 
 You should see `{"ok":true,...}` on the page. That's it — the bot now talks to Vercel.
 
