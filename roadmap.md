@@ -1,3 +1,3 @@
 
 ## Backlog
-- [ ] Translate some homepage testimonials into Amharic (user request, Oct 16)
+- [x] Translate some homepage testimonials into Amharic (done Oct 16)
