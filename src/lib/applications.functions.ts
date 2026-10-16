@@ -20,6 +20,20 @@ export const submitApplication = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("tutor_applications").insert(data);
     if (error) throw new Error(error.message);
+    // Notify admin-linked Telegram chats (best effort — never blocks the applicant).
+    try {
+      const { data: admins } = await supabaseAdmin
+        .from("telegram_chats")
+        .select("chat_id")
+        .eq("is_admin", true);
+      if (admins?.length) {
+        const { tg } = await import("./telegram.server");
+        const text = `📝 New tutor application\n${data.full_name} · ${data.subjects.join(", ") || "no subjects listed"}\n📞 ${data.phone}${data.telegram ? ` · ${data.telegram}` : ""}\n\nReview it in the admin dashboard.`;
+        for (const a of admins) await tg("sendMessage", { chat_id: a.chat_id, text });
+      }
+    } catch (e) {
+      console.error("Admin Telegram notification failed:", e);
+    }
     return { ok: true };
   });
 
