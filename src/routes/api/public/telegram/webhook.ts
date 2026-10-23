@@ -84,18 +84,13 @@ async function onText(chatId: number, name: string, text: string) {
 
   // Free text
   if (db) {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: chat } = await supabaseAdmin
-      .from("telegram_chats")
-      .select("pending_action")
-      .eq("chat_id", chatId)
-      .maybeSingle();
-    if (chat?.pending_action === "support") {
-      await supabaseAdmin.from("telegram_chats").update({ pending_action: null }).eq("chat_id", chatId);
-      await insertBotRequest(chatId, "support", text.slice(0, 1000) });
+    if ((await getPendingAction(chatId)) === "support") {
+      await setPendingAction(chatId, null);
+      await insertBotRequest(chatId, "support", text.slice(0, 1000));
       await tg("sendMessage", {
         chat_id: chatId,
-        text: `Thanks ${name}! Your question is with an admin now — we'll reply here within a few hours. 🙏`);
+        text: `Thanks ${name}! Your question is with an admin now — we'll reply here within a few hours. 🙏`,
+      });
       return;
     }
   }
