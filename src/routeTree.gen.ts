@@ -23,6 +23,7 @@ import { Route as DemoParentRouteImport } from './routes/demo.parent'
 import { Route as DemoStudentRouteImport } from './routes/demo.student'
 import { Route as DemoTeacherRouteImport } from './routes/demo.teacher'
 import { Route as DemoTelegramRouteImport } from './routes/demo.telegram'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -95,6 +96,11 @@ const DemoTelegramRoute = DemoTelegramRouteImport.update({
   path: '/telegram',
   getParentRoute: () => DemoRoute,
 } as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTelegramWebhookRoute =
   ApiPublicTelegramWebhookRouteImport.update({
     id: '/api/public/telegram/webhook',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/demo/teacher': typeof DemoTeacherRoute
   '/demo/telegram': typeof DemoTelegramRoute
   '/demo/': typeof DemoIndexRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/demo/teacher': typeof DemoTeacherRoute
   '/demo/telegram': typeof DemoTelegramRoute
   '/demo': typeof DemoIndexRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesById {
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/demo/teacher': typeof DemoTeacherRoute
   '/demo/telegram': typeof DemoTelegramRoute
   '/demo/': typeof DemoIndexRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/demo/teacher'
     | '/demo/telegram'
     | '/demo/'
+    | '/api/public/health'
     | '/api/public/telegram/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/demo/teacher'
     | '/demo/telegram'
     | '/demo'
+    | '/api/public/health'
     | '/api/public/telegram/webhook'
   id:
     | '__root__'
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/demo/teacher'
     | '/demo/telegram'
     | '/demo/'
+    | '/api/public/health'
     | '/api/public/telegram/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -215,6 +227,7 @@ export interface RootRouteChildren {
   HowItWorksRoute: typeof HowItWorksRoute
   PricingRoute: typeof PricingRoute
   TutorsRoute: typeof TutorsRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
 }
 
@@ -318,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoTelegramRouteImport
       parentRoute: typeof DemoRoute
     }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/telegram/webhook': {
       id: '/api/public/telegram/webhook'
       path: '/api/public/telegram/webhook'
@@ -357,6 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   HowItWorksRoute: HowItWorksRoute,
   PricingRoute: PricingRoute,
   TutorsRoute: TutorsRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,58 +1,34 @@
-# Deploying Bright Path Tutors to Vercel (v1 — static demo, no database)
+# Deploying Bright Path Tutors (free hosting)
 
-On Vercel the site runs in **static demo mode**: every page and dashboard works with sample data,
-and the Telegram bot answers with its menu. Nothing is saved (applications show "received" but aren't stored;
-the "Live bot" list stays empty). Saving can be added later with a database.
+Main host: **Cloudflare Workers Free** ($0). Backup: **Render Free + keep-alive ping**.
+Without database settings the site runs in **static demo mode**: all pages and dashboards show sample data, and the bot answers with its menu.
 
-## 1. Put the code on GitHub
-Lovable: Project settings → Git → Connect → choose your GitHub account. A new repo is created and kept in sync.
+Use a **separate test bot** (create one with @BotFather) until the team approves moving the real bot. A bot can only talk to one site at a time.
 
-## 2. Create the Vercel project
-1. vercel.com → Add New → Project → Import the GitHub repo.
-2. In the project settings:
-   - Framework Preset: **Other**
-   - Build Command: `npm run build:vercel`
-   - Output Directory: leave as default (the build handles it)
-   - Install Command: `npm install`
-3. Deploy. Vercel gives you a URL like `https://bright-path.vercel.app`.
+## A. Cloudflare Workers (main)
+1. Put the code on GitHub (Lovable: Project settings → Git → Connect).
+2. Cloudflare dashboard → Workers & Pages → Create → Import a repository → choose the repo.
+   - Build command: `npm run build:workers`
+   - Deploy command: `npx wrangler deploy`
+3. Worker → Settings → Variables and Secrets → add as **Secret**:
+   - `TELEGRAM_BOT_TOKEN` — test bot token
+   - `TELEGRAM_WEBHOOK_SECRET` — any letters/numbers password you invent
+4. Redeploy. You get a URL like `https://bright-path-tutors.<you>.workers.dev`.
+5. Point the test bot at it — paste in your browser:
+   ```
+   https://api.telegram.org/bot<token>/setWebhook?url=<your workers URL>/api/public/telegram/webhook&secret_token=<your secret>&drop_pending_updates=true
+   ```
+   You should see `{"ok":true,...}`.
+6. Check: open the URL, `/demo/admin`, and `/api/public/health` (shows `{"ok":true}`); send `/start` to the test bot.
+7. Speed check (free plan allows 10 ms processing per request): Worker → Observability → look at "CPU time". If many requests exceed 10 ms or show "exceeded CPU" errors, use plan B.
 
-## 3. Environment variables (Project → Settings → Environment Variables)
-| Name | Value |
-|---|---|
-| `TELEGRAM_BOT_TOKEN` | Your bot token from @BotFather (`/mybots` → bot → API Token) |
-| `TELEGRAM_WEBHOOK_SECRET` | Any password you invent, letters/numbers only, e.g. `BrightPath2026secret` |
+## B. Render Free (backup)
+1. render.com → New → Web Service → connect the repo.
+   - Build: `npm install && npm run build:node` · Start: `npm start` · Plan: Free
+2. Add the same two variables under Environment.
+3. Free servers sleep after 15 min. At cron-job.org or UptimeRobot, add a check every 5 minutes on `https://<your app>.onrender.com/api/public/health`.
+4. Set the bot webhook as in A5, using the Render URL.
+Note: 750 free hours/month per account — enough for one always-on service only.
 
-Do **not** add any database variables — leaving them out turns on static demo mode.
-Redeploy after saving variables (Deployments → ⋯ → Redeploy).
-
-## 4. Point the bot at Vercel
-A bot can talk to only one site at a time — this moves it away from the Lovable version.
-**Easiest way — no commands needed:** paste this into your browser's address bar
-(replace `<your token>`, the URL, and `<your secret>` with the same `TELEGRAM_WEBHOOK_SECRET` value) and press Enter:
-
-```
-https://api.telegram.org/bot<your token>/setWebhook?url=https://brightpathtutors.vercel.app/api/public/telegram/webhook&secret_token=<your secret>&drop_pending_updates=true
-```
-The secret must match exactly, otherwise the site rejects the bot's messages ("401 Unauthorized").
-
-You should see `{"ok":true,...}` on the page. That's it — the bot now talks to Vercel.
-
-**Alternative — from a terminal on your computer** (needs Node 18+ installed, inside the downloaded repo):
-
-```bash
-TELEGRAM_BOT_TOKEN=<your token> node scripts/set-telegram-webhook.mjs https://bright-path.vercel.app
-```
-You should see `"ok": true` and the Vercel URL ending in `/api/public/telegram/webhook`.
-
-## 5. Check it works
-- Open the Vercel URL → home page loads; `/demo/admin` and other dashboards work.
-- In Telegram send `/start` to the bot → the menu appears.
-- Problems: Vercel → Deployments → select the deployment → Logs.
-
-## Switching the bot back to Lovable
-Ask the Lovable chat: "point the Telegram bot back to the Lovable preview".
-
-## Later: adding a database
-Easiest: create a free Supabase project, run `drizzle/migrations/*.sql` in its SQL editor, then add
-`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (from that project's API settings) as Vercel environment
-variables. Saving turns on automatically.
+## Later: database (Neon)
+Create a free Neon project; the database connection is added in the next step of the plan. Never paste keys into chat.
