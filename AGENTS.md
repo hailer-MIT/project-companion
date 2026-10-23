@@ -16,3 +16,4 @@
 - Live admin server functions fail closed through `src/lib/admin-access.ts` until verified sessions and separately protected roles are implemented; public `/demo` dashboards must show sample data only.
 - Legacy Telegram `is_admin` flags are untrusted because they were self-assigned; never use them for private notifications or permissions. Restore alerts only through verified account linking.
 - Railway/Node deploys use `build:node` (NITRO_PRESET=node-server); see DEPLOY.md. Without SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY the server runs in static demo mode (hasDb() in telegram.server.ts); TELEGRAM_BOT_TOKEN switches the bot to direct Telegram calls.
+- All bot/application storage goes through src/lib/store.server.ts: Neon via DATABASE_URL when set (external hosts), else Lovable Cloud; Neon schema is database/neon-setup.sql (keep in sync with drizzle migrations) — keeps the app portable between databases.
