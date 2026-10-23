@@ -7,6 +7,14 @@ import { DashHeader, Panel, Stat, Trend } from "@/components/dash";
 import { children, upcomingSessions } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/demo/student")({
+  head: () => ({ meta: [
+    { title: "Student Demo | Bright Path Tutors" },
+    { name: "description", content: "Explore sample classes and learning progress." },
+    { property: "og:title", content: "Student Demo | Bright Path Tutors" },
+    { property: "og:description", content: "Explore sample classes and learning progress." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Student,
 });
 

@@ -8,6 +8,14 @@ import { DashHeader, Panel, Stat, StatusBadge } from "@/components/dash";
 import { COMMISSION, upcomingSessions } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/demo/teacher")({
+  head: () => ({ meta: [
+    { title: "Tutor Demo | Bright Path Tutors" },
+    { name: "description", content: "Review sample teaching sessions, attendance, and earnings." },
+    { property: "og:title", content: "Tutor Demo | Bright Path Tutors" },
+    { property: "og:description", content: "Review sample teaching sessions, attendance, and earnings." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Teacher,
 });
 

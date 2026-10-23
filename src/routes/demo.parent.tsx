@@ -6,6 +6,14 @@ import { DashHeader, Panel, Stat, StatusBadge, Trend } from "@/components/dash";
 import { children, payments, sessionNotes, upcomingSessions } from "@/lib/demo-data";
 
 export const Route = createFileRoute("/demo/parent")({
+  head: () => ({ meta: [
+    { title: "Parent Demo | Bright Path Tutors" },
+    { name: "description", content: "Review sample family bookings, payments, and student progress." },
+    { property: "og:title", content: "Parent Demo | Bright Path Tutors" },
+    { property: "og:description", content: "Review sample family bookings, payments, and student progress." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Parent,
 });
 
