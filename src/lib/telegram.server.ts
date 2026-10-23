@@ -10,8 +10,10 @@ function connKey(): string {
   return k;
 }
 // True when the server has database access; without it the app runs in static demo mode.
+export { dbKind } from "./store.server";
+import { dbKind } from "./store.server";
 export function hasDb(): boolean {
-  return Boolean(process.env["SUPABASE_URL"] && process.env["SUPABASE_SERVICE_ROLE_KEY"]);
+  return dbKind() !== "none";
 }
 
 // Secret Telegram echoes in X-Telegram-Bot-Api-Secret-Token. TELEGRAM_WEBHOOK_SECRET (self-hosted,

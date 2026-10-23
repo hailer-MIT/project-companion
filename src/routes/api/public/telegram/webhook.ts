@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "crypto";
+import { getPendingAction, insertBotRequest, recordUpdate, setPendingAction } from "@/lib/store.server";
 import { hasDb, sendScreen, tg, webhookSecret } from "@/lib/telegram.server";
 import { telegramCanGrantAdmin } from "@/lib/admin-access";
 
@@ -27,29 +28,20 @@ async function onCallback(chatId: number, data: string) {
     await sendScreen(chatId, data);
     return;
   }
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   if (data === "support") {
     // Next free-text message becomes a support question (admin dashboard).
-    await supabaseAdmin.from("telegram_chats").update({ pending_action: "support" }).eq("chat_id", chatId);
+    await setPendingAction(chatId, "support");
     await sendScreen(chatId, "support");
     return;
   }
   if (data === "paid") {
-    await supabaseAdmin.from("bot_requests").insert({
-      chat_id: chatId,
-      kind: "payment",
-      body: "Says they paid 450 ETB via Telebirr — ref BPT-3021 (Thu Physics session). Confirm and send a receipt.",
-    });
+    await insertBotRequest(chatId, "payment", "Says they paid 450 ETB via Telebirr — ref BPT-3021 (Thu Physics session). Confirm and send a receipt.");
     await sendScreen(chatId, "paid");
     return;
   }
   if (data === "slot_fri" || data === "slot_sat") {
     const label = data === "slot_fri" ? "Fri 16:00" : "Sat 10:00";
-    await supabaseAdmin.from("bot_requests").insert({
-      chat_id: chatId,
-      kind: "reschedule",
-      body: `Asked to move the session to ${label}. Confirm with the tutor.`,
-    });
+    await insertBotRequest(chatId, "reschedule", `Asked to move the session to ${label}. Confirm with the tutor.`);
     await sendScreen(chatId, data);
     return;
   }
@@ -100,11 +92,10 @@ async function onText(chatId: number, name: string, text: string) {
       .maybeSingle();
     if (chat?.pending_action === "support") {
       await supabaseAdmin.from("telegram_chats").update({ pending_action: null }).eq("chat_id", chatId);
-      await supabaseAdmin.from("bot_requests").insert({ chat_id: chatId, kind: "support", body: text.slice(0, 1000) });
+      await insertBotRequest(chatId, "support", text.slice(0, 1000) });
       await tg("sendMessage", {
         chat_id: chatId,
-        text: `Thanks ${name}! Your question is with an admin now — we'll reply here within a few hours. 🙏`,
-      });
+        text: `Thanks ${name}! Your question is with an admin now — we'll reply here within a few hours. 🙏`);
       return;
     }
   }
@@ -131,25 +122,20 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
 
         // Storage is optional: skipped in static demo mode (no database configured).
         if (hasDb()) {
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-          // Idempotency: Telegram retries; skip already-processed updates.
-          const { error: insErr } = await supabaseAdmin.from("telegram_messages").insert({
-            update_id: update.update_id,
-            chat_id: chatId,
-            text: update.message?.text ?? update.callback_query?.data ?? null,
-            raw_update: update as never,
-          });
-          if (insErr) {
-            if (insErr.code === "23505") return Response.json({ ok: true, duplicate: true });
-            console.error(insErr);
-            return Response.json({ error: insErr.message }, { status: 500 });
+          try {
+            const fresh = await recordUpdate({
+              update_id: update.update_id,
+              chat_id: chatId,
+              text: update.message?.text ?? update.callback_query?.data ?? null,
+              raw: update,
+              first_name: from?.first_name ?? null,
+              username: from?.username ?? null,
+            });
+            if (!fresh) return Response.json({ ok: true, duplicate: true });
+          } catch (e) {
+            console.error(e);
+            return Response.json({ error: "storage failed" }, { status: 500 });
           }
-          await supabaseAdmin.from("telegram_chats").upsert({
-            chat_id: chatId,
-            first_name: from?.first_name ?? null,
-            username: from?.username ?? null,
-            last_seen_at: new Date().toISOString(),
-          });
         }
 
         try {

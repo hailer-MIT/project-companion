@@ -18,9 +18,8 @@ export const submitApplication = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { hasDb } = await import("./telegram.server");
     if (!hasDb()) return { ok: true, demo: true }; // static demo mode: nothing stored
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("tutor_applications").insert(data);
-    if (error) throw new Error(error.message);
+    const { insertApplication } = await import("./store.server");
+    await insertApplication(data);
     // Legacy chat flags were self-assigned. Do not disclose applicant details
     // until recipients are linked to verified, authorized application accounts.
     return { ok: true };
