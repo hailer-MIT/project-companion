@@ -1,0 +1,9 @@
+{
+  // Cloudflare Workers config for `npm run build:workers` + `npx wrangler deploy`.
+  "name": "bright-path-tutors",
+  "main": ".output/server/index.mjs",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": ".output/public" },
+  "observability": { "enabled": true }
+}
