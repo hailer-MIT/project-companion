@@ -5,21 +5,26 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DashHeader, Panel, Stat, StatusBadge } from "@/components/dash";
 import { applications, COMMISSION, payments } from "@/lib/demo-data";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { listApplications, setApplicationStatus } from "@/lib/applications.functions";
-import { listBotRequests, resolveBotRequest, type BotRequest } from "@/lib/telegram.functions";
 
 export const Route = createFileRoute("/demo/admin")({
+  head: () => ({ meta: [
+    { title: "Admin Demo | Bright Path Tutors" },
+    { name: "description", content: "Sample tutor recruitment and payment administration for Bright Path Tutors." },
+    { property: "og:title", content: "Admin Demo | Bright Path Tutors" },
+    { property: "og:description", content: "Sample tutor recruitment and payment administration for Bright Path Tutors." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Admin,
 });
 
 const checkLabels = { degree: "Degree", experience: "Experience", references: "References", background: "Background check" } as const;
 
 function Admin() {
-  const [selected, setSelected] = useState(applications[0]!);
+  const [selected, setSelected] = useState(applications[0]);
   const [pays, setPays] = useState(payments);
   const revenue = pays.filter((p) => p.status === "Confirmed").reduce((s, p) => s + p.amount, 0);
+  if (!selected) return null;
   const bgOk = selected.checks.background;
   return (
     <div className="space-y-6">
@@ -62,9 +67,9 @@ function Admin() {
         </div>
       </Panel>
 
-      <RealApplications />
-
-      <BotRequestsPanel />
+      <Panel title="Real applications and Telegram requests">
+        <p className="text-sm text-muted-foreground">Private records are locked until secure administrator accounts are available.</p>
+      </Panel>
 
       <Panel title="Payments & disputes">
         <div className="overflow-x-auto">
@@ -89,82 +94,3 @@ function Admin() {
   );
 }
 
-function RealApplications() {
-  const list = useServerFn(listApplications);
-  const setStatus = useServerFn(setApplicationStatus);
-  const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["applications"], queryFn: () => list() });
-  const act = async (id: string, status: "approved" | "rejected") => {
-    await setStatus({ data: { id, status } });
-    toast.success(`Application ${status}`);
-    qc.invalidateQueries({ queryKey: ["applications"] });
-  };
-  return (
-    <Panel title="Real applications (from the Apply page)">
-      {isLoading ? <p className="text-sm text-muted-foreground">Loading…</p> : !data?.length ? (
-        <p className="text-sm text-muted-foreground">No applications yet. Submit one on the "Teach with us" page to see it here.</p>
-      ) : (
-        <ul className="divide-y">
-          {data.map((a) => (
-            <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-              <div>
-                <p className="font-medium">{a.full_name}</p>
-                <p className="text-xs text-muted-foreground">{a.subjects.join(", ") || "No subjects"} · {a.years_experience ?? 0} years{a.telegram ? ` · ${a.telegram}` : ""} · {new Date(a.created_at).toLocaleDateString()}</p>
-              </div>
-              {a.status === "pending" ? (
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={() => act(a.id, "approved")}>Approve</Button>
-                  <Button size="sm" variant="outline" onClick={() => act(a.id, "rejected")}>Reject</Button>
-                </div>
-              ) : <span className="text-sm capitalize text-muted-foreground">{a.status}</span>}
-            </li>
-          ))}
-        </ul>
-      )}
-    </Panel>
-  );
-}
-
-const kindLabels: Record<string, string> = {
-  support: "🆘 Support question",
-  payment: "💳 Payment claimed",
-  reschedule: "🔁 Reschedule request",
-};
-
-function BotRequestsPanel() {
-  const list = useServerFn(listBotRequests);
-  const resolve = useServerFn(resolveBotRequest);
-  const qc = useQueryClient();
-  const { data, isLoading } = useQuery({ queryKey: ["bot-requests"], queryFn: () => list() });
-  const done = async (id: string) => {
-    await resolve({ data: { id } });
-    toast.success("Marked as handled");
-    qc.invalidateQueries({ queryKey: ["bot-requests"] });
-  };
-  return (
-    <Panel title="Telegram requests (from parents)">
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      ) : !data?.length ? (
-        <p className="text-sm text-muted-foreground">
-          Nothing yet. When a parent taps “✅ I've paid”, “🔁 Reschedule” or sends a support question to the bot, it appears here.
-        </p>
-      ) : (
-        <ul className="divide-y">
-          {data.map((r: BotRequest) => (
-            <li key={r.id} className="flex flex-wrap items-start justify-between gap-3 py-3">
-              <div className="min-w-0">
-                <p className="text-sm font-medium">{kindLabels[r.kind] ?? r.kind}{r.status === "resolved" ? " · handled" : ""}</p>
-                <p className="text-xs text-muted-foreground">{r.who} · {new Date(r.created_at).toLocaleString()}</p>
-                {r.body && <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>}
-              </div>
-              {r.status === "open" && (
-                <Button size="sm" variant="outline" onClick={() => done(r.id)}>Mark handled</Button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </Panel>
-  );
-}

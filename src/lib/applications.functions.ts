@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireLiveAdminAccess } from "./admin-access";
 
 const appSchema = z.object({
   full_name: z.string().trim().min(2).max(120),
@@ -20,25 +21,14 @@ export const submitApplication = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("tutor_applications").insert(data);
     if (error) throw new Error(error.message);
-    // Notify admin-linked Telegram chats (best effort — never blocks the applicant).
-    try {
-      const { data: admins } = await supabaseAdmin
-        .from("telegram_chats")
-        .select("chat_id")
-        .eq("is_admin", true);
-      if (admins?.length) {
-        const { tg } = await import("./telegram.server");
-        const text = `📝 New tutor application\n${data.full_name} · ${data.subjects.join(", ") || "no subjects listed"}\n📞 ${data.phone}${data.telegram ? ` · ${data.telegram}` : ""}\n\nReview it in the admin dashboard.`;
-        for (const a of admins) await tg("sendMessage", { chat_id: a.chat_id, text });
-      }
-    } catch (e) {
-      console.error("Admin Telegram notification failed:", e);
-    }
+    // Legacy chat flags were self-assigned. Do not disclose applicant details
+    // until recipients are linked to verified, authorized application accounts.
     return { ok: true };
   });
 
 // Demo-only (no admin login yet): lists the newest applications.
 export const listApplications = createServerFn({ method: "GET" }).handler(async () => {
+  requireLiveAdminAccess();
   const { hasDb } = await import("./telegram.server");
   if (!hasDb()) return [];
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -54,6 +44,7 @@ export const listApplications = createServerFn({ method: "GET" }).handler(async 
 export const setApplicationStatus = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ id: z.string().uuid(), status: z.enum(["approved", "rejected"]) }).parse(d))
   .handler(async ({ data }) => {
+    requireLiveAdminAccess();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("tutor_applications").update({ status: data.status }).eq("id", data.id);
     if (error) throw new Error(error.message);

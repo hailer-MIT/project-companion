@@ -2,6 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, GraduationCap, Send, Shield, Users } from "lucide-react";
 
 export const Route = createFileRoute("/demo/")({
+  head: () => ({ meta: [
+    { title: "Role Demonstrations | Bright Path Tutors" },
+    { name: "description", content: "Explore sample parent, student, tutor, administrator, and Telegram dashboards." },
+    { property: "og:title", content: "Role Demonstrations | Bright Path Tutors" },
+    { property: "og:description", content: "Explore sample parent, student, tutor, administrator, and Telegram dashboards." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: DemoHome,
 });
 

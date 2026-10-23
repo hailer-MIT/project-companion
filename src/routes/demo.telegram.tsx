@@ -1,13 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Send } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
 import { DashHeader, Panel } from "@/components/dash";
-import { listTelegramChats, sendDemoNotification } from "@/lib/telegram.functions";
 
 export const Route = createFileRoute("/demo/telegram")({
+  head: () => ({ meta: [
+    { title: "Telegram Demo | Bright Path Tutors" },
+    { name: "description", content: "Explore sample tutoring conversations and the Bright Path Tutors bot." },
+    { property: "og:title", content: "Telegram Demo | Bright Path Tutors" },
+    { property: "og:description", content: "Explore sample tutoring conversations and the Bright Path Tutors bot." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: TelegramDemo,
 });
 
@@ -30,32 +34,12 @@ const start: Msg[] = [
 ];
 
 function LiveBot() {
-  const list = useServerFn(listTelegramChats);
-  const send = useServerFn(sendDemoNotification);
-  const { data: chats, refetch, isFetching } = useQuery({ queryKey: ["tg-chats"], queryFn: () => list() });
-  const notify = async (chatId: number, kind: "reminder" | "receipt" | "missed") => {
-    try { await send({ data: { chatId, kind } }); toast.success("Sent to Telegram"); }
-    catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
-  };
   return (
     <Panel title="Live bot">
       <p className="text-sm text-muted-foreground">
-        Open <a className="font-medium text-primary underline" href="https://t.me/BrightPathTutors_Bot" target="_blank" rel="noreferrer">@BrightPathTutors_Bot</a> and press Start. Linked chats appear below — push a sample notification to them.
+        <a className="font-medium text-primary underline" href="https://t.me/BrightPathTutors_Bot" target="_blank" rel="noreferrer">@BrightPathTutors_Bot</a>
       </p>
-      <button onClick={() => refetch()} className="mt-3 rounded-lg border px-3 py-1.5 text-xs font-medium">{isFetching ? "Refreshing…" : "Refresh"}</button>
-      <div className="mt-4 space-y-2">
-        {chats?.length === 0 && <p className="text-sm text-muted-foreground">No chats linked yet.</p>}
-        {chats?.map((c) => (
-          <div key={c.chat_id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 text-sm">
-            <span className="font-medium">{c.first_name ?? "Unknown"}{c.username ? ` (@${c.username})` : ""}</span>
-            <div className="flex gap-1">
-              {(["reminder", "receipt", "missed"] as const).map((k) => (
-                <button key={k} onClick={() => notify(c.chat_id, k)} className="rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground capitalize">{k}</button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+      <p className="mt-3 text-sm text-muted-foreground">Linked chats and outgoing notifications are locked until secure administrator accounts are available.</p>
     </Panel>
   );
 }

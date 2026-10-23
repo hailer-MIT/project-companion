@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "crypto";
 import { hasDb, sendScreen, tg, webhookSecret } from "@/lib/telegram.server";
+import { telegramCanGrantAdmin } from "@/lib/admin-access";
 
 function safeEqual(a: string, b: string) {
   const l = Buffer.from(a);
@@ -17,7 +18,7 @@ type Update = {
 
 function cmdOf(text: string): string {
   // "/start@BotName extra" → "/start"
-  return text.trim().split(/\s+/)[0]!.split("@")[0]!.toLowerCase();
+  return (text.trim().split(/\s+/)[0]?.split("@")[0] ?? "").toLowerCase();
 }
 
 // Handle a button press. Saves payment/reschedule requests, opens support Q&A.
@@ -79,18 +80,12 @@ async function onText(chatId: number, name: string, text: string) {
       await onCallback(chatId, "support");
       return;
     case "/admin": {
-      // Demo-only admin link (the admin pages have no login yet).
-      if (!db) {
-        await sendScreen(chatId, "menu");
-        return;
+      if (!telegramCanGrantAdmin()) {
+        await tg("sendMessage", {
+          chat_id: chatId,
+          text: "Administrator access cannot be granted through Telegram. Secure account linking is not available yet.",
+        });
       }
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.from("telegram_chats").update({ is_admin: true, pending_action: null }).eq("chat_id", chatId);
-      await tg("sendMessage", {
-        chat_id: chatId,
-        text: "✅ This chat is now linked as an admin. You'll get a message here whenever a tutor applies or a parent sends a request.",
-        reply_markup: { inline_keyboard: [[{ text: "📅 My sessions", callback_data: "sessions" }]] },
-      });
       return;
     }
   }
