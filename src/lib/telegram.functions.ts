@@ -1,8 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireLiveAdminAccess } from "./admin-access";
 
 // Demo-only: no auth yet. Only targets chats that already messaged the bot.
 export const listTelegramChats = createServerFn({ method: "GET" }).handler(async () => {
+  requireLiveAdminAccess();
   const { hasDb } = await import("./telegram.server");
   if (!hasDb()) return [];
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -24,6 +26,7 @@ const kinds = {
 export const sendDemoNotification = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ chatId: z.number().int(), kind: z.enum(["reminder", "receipt", "missed"]) }).parse(d))
   .handler(async ({ data }) => {
+    requireLiveAdminAccess();
     const { tg, keyboard, hasDb } = await import("./telegram.server");
     if (!hasDb()) throw new Error("Live notifications need a database");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -45,6 +48,7 @@ export type BotRequest = {
 };
 
 export const listBotRequests = createServerFn({ method: "GET" }).handler(async () => {
+  requireLiveAdminAccess();
   const { hasDb } = await import("./telegram.server");
   if (!hasDb()) return [] as BotRequest[];
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -66,6 +70,7 @@ export const listBotRequests = createServerFn({ method: "GET" }).handler(async (
 export const resolveBotRequest = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
+    requireLiveAdminAccess();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("bot_requests").update({ status: "resolved" }).eq("id", data.id);
     if (error) throw new Error(error.message);
