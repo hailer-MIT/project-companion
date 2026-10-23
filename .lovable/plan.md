@@ -4,7 +4,34 @@
 Keep the current website and demo behaviour while building a secure, portable tutoring service. Prefer free or inexpensive services during the first one or two months, then upgrade measured bottlenecks rather than replacing the whole system.
 
 ## Scope of this plan
-This is a proposed implementation sequence, not a migration already performed. Provider pricing and the hosting recommendation will be finalized against current official sources before this plan is presented. No hosting account, payment, live bot switch, or production data change happens merely by reviewing the plan.
+This is a proposed implementation sequence, not a migration already performed. No hosting account, payment, live bot switch, or production data change happens merely by reviewing the plan.
+
+## Proposed first one or two months
+- Frontend/backend: keep TanStack Start, React, and TypeScript; no framework license fee.
+- Records: Neon Free. The live pricing page checked October 23, 2026 lists 1 GB storage and 100 CU-hours monthly per project; no credit card required. Free compute sleeps after five inactive minutes. Monitor usage and keep an independent restore-tested backup.
+- Accounts: self-hosted Better Auth core in our application, not the optional paid infrastructure service. Add a free-tier transactional email provider such as Resend, subject to its quotas and a verified sending domain. Prefer authenticator-app MFA to paid SMS.
+- Uploads: Cloudflare R2 Standard within its monthly included allowance (10 GB-month, 1 million Class A and 10 million Class B operations, no egress charge). Billing activation may still be required; confirm checkout before enabling.
+- Hosting for a dependable pilot: Railway Hobby, $5/month minimum credited toward resource usage, with additional charges when usage exceeds that amount. This is a baseline, not a fixed all-inclusive bill.
+- Zero-hosting-fee alternative: Cloudflare Workers Free for a limited prototype only if the deployment and auth tests pass. Its 10 ms CPU/request ceiling may be too tight for SSR and secure password hashing; do not weaken password security to fit it. Workers Paid starts at $5/month and is an alternative after runtime testing.
+- Render Free is a demonstration alternative, not the recommended live-bot host: it sleeps after 15 minutes of inactivity. Railway's $5/30-day trial credit is temporary; its recurring Free plan has only $1 monthly credit. Vercel Hobby is restricted to personal/noncommercial use, so do not use it as the commercial service's free hosting plan.
+- Aiven PostgreSQL Free is a database alternative (1 GB RAM/1 GB storage) but lacks a selectable region and managed connection pooling. Its $5 Developer tier is positioned for development, not a substitute for a production reliability plan.
+
+### Cost boundaries
+With database, file, and email usage within free quotas, the paid-pilot hosting baseline is $5 for one month or $10 for two. Actual bills can be higher due to hosting resource usage, quota overages, domains, taxes, backup/security tooling, or other services. A $0 prototype is conditional on all allowances and compatibility tests, not a promise of a free production system. Set alerts and supported spending controls; alerts alone do not cap bills.
+
+### Official sources
+- https://neon.com/pricing
+- https://aiven.io/pricing/postgresql
+- https://docs.railway.com/pricing/plans
+- https://docs.railway.com/pricing/free-trial
+- https://developers.cloudflare.com/workers/platform/pricing/
+- https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/
+- https://developers.cloudflare.com/r2/pricing/
+- https://www.better-auth.com/docs/integrations/tanstack
+- https://resend.com/pricing
+- https://render.com/docs/free
+- https://vercel.com/docs/plans/hobby
+- https://docs.lovable.dev/features/database-backups
 
 ## Build order
 
