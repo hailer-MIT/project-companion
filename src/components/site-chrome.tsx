@@ -1,11 +1,10 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, Menu } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BRAND } from "@/lib/demo-data";
 import { getAccountState } from "@/lib/account.functions";
-import { accountClient } from "@/lib/account-client";
 
 const nav = [
   { to: "/tutors", label: "Find a tutor" },
@@ -28,31 +27,28 @@ export function Logo() {
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
-  const session = accountClient.useSession();
   const state = useQuery({ queryKey: ["account-state"], queryFn: () => getAccountState(), retry: false, staleTime: 30_000 });
-  useEffect(() => { void state.refetch(); void router.invalidate(); }, [session.data?.user.id]);
   const signedIn = Boolean(state.data?.account?.user.emailVerified);
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         <Logo />
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-5 lg:flex">
           {nav.map((n) => (
             <Link key={n.to} to={n.to} className="text-sm text-muted-foreground hover:text-foreground" activeProps={{ className: "text-foreground font-medium" }}>
               {n.label}
             </Link>
           ))}
         </nav>
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Button variant="ghost" asChild><Link to={signedIn ? "/account" : "/auth"}>{signedIn ? "My account" : "Sign in"}</Link></Button>
           <Button variant="ghost" asChild><Link to="/apply">Teach with us</Link></Button>
           <Button asChild><Link to="/demo">Open demo</Link></Button>
         </div>
-        <button className="md:hidden" aria-label="Menu" onClick={() => setOpen(!open)}><Menu /></button>
+        <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Menu" onClick={() => setOpen(!open)}><Menu /></Button>
       </div>
       {open && (
-        <div className="border-t px-4 py-3 md:hidden">
+        <div className="border-t px-4 py-3 lg:hidden">
           {nav.map((n) => (
             <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="block py-2 text-sm">{n.label}</Link>
           ))}

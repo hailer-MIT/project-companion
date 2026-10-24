@@ -41,7 +41,8 @@ export const inviteStudent = createServerFn({ method: "POST" })
     const account = await requireAccount(getRequest().headers);
     if (!account.roles.includes("parent")) throw new Error("Parent access required.");
     if (account.user.email.toLowerCase() === data.email.toLowerCase()) throw new Error("Choose another account.");
-    await accountSql("insert into public.bpt_family_invitations(parent_id,student_email) select $1,lower($2) where (select count(*) from public.bpt_family_invitations where parent_id=$1 and created_at>now()-interval '1 day')<10 on conflict(parent_id,student_email) do update set status='pending',expires_at=now()+interval '7 days' returning id", [account.user.id, data.email]);
+    const result = await accountSql("insert into public.bpt_family_invitations(parent_id,student_email) select $1,lower($2) where (select count(*) from public.bpt_family_invitations where parent_id=$1 and created_at>now()-interval '1 day')<10 on conflict(parent_id,student_email) do nothing returning id", [account.user.id, data.email]);
+    if (!result.rows.length) throw new Error("This invitation already exists or the daily invitation limit was reached.");
     return { ok: true };
   });
 export const respondToFamilyInvite = createServerFn({ method: "POST" })

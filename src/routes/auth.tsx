@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { LockKeyhole, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ export const Route = createFileRoute("/auth")({
   loader: () => getAccountState(), head: () => accountHead("Sign in", "Sign in to your Bright Path Tutors account."), component: Auth,
 });
 function Auth() {
-  const state = Route.useLoaderData(); const search = Route.useSearch(); const router = useRouter();
+  const state = Route.useLoaderData(); const search = Route.useSearch(); const router = useRouter(); const queries = useQueryClient();
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [busy, setBusy] = useState(false); const [error, setError] = useState(""); const [notice, setNotice] = useState("");
   const title = mode === "signup" ? "Create your account" : mode === "forgot" ? "Reset your password" : "Welcome back";
@@ -38,7 +39,7 @@ function Auth() {
         } else {
           const result = await accountClient.signIn.email({ email, password });
           if (result.error) throw new Error(result.error.message);
-          await router.invalidate(); await router.navigate({ to: search.redirect ?? "/account" });
+          await queries.invalidateQueries({ queryKey: ["account-state"] }); await router.invalidate(); await router.navigate({ to: search.redirect ?? "/account" });
         }
       } catch (err) { setError(err instanceof Error ? err.message : "Unable to continue. Try again."); } finally { setBusy(false); }
     }}>

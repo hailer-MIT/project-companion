@@ -26,7 +26,7 @@ export function createAccounts() {
   if (!secret || secret.length < 32 || !baseURL) throw new Error("Account sign-in is awaiting valid owner setup.");
   return betterAuth({
     secret, baseURL, basePath: "/api/public/auth", trustedOrigins: [baseURL],
-    database: kyselyAdapter(createAccountDatabase(), { type: "postgres", transaction: false }),
+    database: kyselyAdapter(createAccountDatabase(), { type: "postgres", transaction: false, usePlans: false }),
     user: { modelName: "bpt_user", changeEmail: { enabled: false } },
     session: { modelName: "bpt_session", cookieCache: { enabled: false } },
     account: { modelName: "bpt_account" },
