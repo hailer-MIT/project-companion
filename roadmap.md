@@ -1,5 +1,6 @@
 
 ## Backlog
+- [ ] Evaluate Mailkite/AgentCourier for account emails using the existing free DNSHE domain; replace Resend only after provider compatibility and configuration are verified.
 - [x] Review and approve the low-cost stack and staged implementation plan.
 - [x] Lock live admin endpoints, remove Telegram self-granted administration, and pause alerts to unverified legacy recipients; preserve sample dashboards.
 - [x] Choose free host: Cloudflare Workers Free (Render Free + ping as backup); Workers build, health check, guide added.
