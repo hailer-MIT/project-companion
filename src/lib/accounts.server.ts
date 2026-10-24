@@ -2,21 +2,10 @@ import { betterAuth } from "better-auth";
 import { kyselyAdapter } from "@better-auth/kysely-adapter";
 import { accountSql, createAccountDatabase } from "./account-db.server";
 import { assertAdmin, assertVerified } from "./account-policy";
+import { accountEmailConfigured, sendAccountEmail } from "./account-email.server";
 
 export function accountsConfigured() {
-  return Boolean(process.env["BETTER_AUTH_SECRET"] && process.env["BETTER_AUTH_URL"] && process.env["NEON_API_KEY"] && process.env["LOVABLE_API_KEY"] && process.env["RESEND_API_KEY"] && process.env["AUTH_EMAIL_FROM"]);
-}
-
-async function sendAccountEmail(to: string, url: string, reset: boolean) {
-  const key = process.env["RESEND_API_KEY"];
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  const from = process.env["AUTH_EMAIL_FROM"];
-  if (!key || !apiKey || !from) throw new Error("Account emails are not configured.");
-  const response = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
-    method: "POST", headers: { Authorization: `Bearer ${apiKey}`, "X-Connection-Api-Key": key, "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to: [to], subject: reset ? "Reset your Bright Path Tutors password" : "Confirm your Bright Path Tutors email", text: `${reset ? "Reset your password" : "Confirm your email"}: ${url}\n\nIf you did not request this, ignore this email.` }),
-  });
-  if (!response.ok) throw new Error(`Account email could not be sent (${response.status}).`);
+  return Boolean(process.env["BETTER_AUTH_SECRET"] && process.env["BETTER_AUTH_URL"] && process.env["NEON_API_KEY"] && process.env["LOVABLE_API_KEY"] && accountEmailConfigured());
 }
 
 export function createAccounts() {
