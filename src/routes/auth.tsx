@@ -10,7 +10,7 @@ import { accountClient } from "@/lib/account-client";
 import { accountHead } from "@/lib/account-meta";
 import { safeAccountRedirect } from "@/lib/account-policy";
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>) => ({ redirect: safeAccountRedirect(s["redirect"]) }),
+  validateSearch: (s: Record<string, unknown>): { redirect?: "/account" | "/admin" } => ({ redirect: safeAccountRedirect(s["redirect"]) }),
   loader: () => getAccountState(), head: () => accountHead("Sign in", "Sign in to your Bright Path Tutors account."), component: Auth,
 });
 function Auth() {
@@ -38,7 +38,7 @@ function Auth() {
         } else {
           const result = await accountClient.signIn.email({ email, password });
           if (result.error) throw new Error(result.error.message);
-          await router.invalidate(); await router.navigate({ to: search.redirect });
+          await router.invalidate(); await router.navigate({ to: search.redirect ?? "/account" });
         }
       } catch (err) { setError(err instanceof Error ? err.message : "Unable to continue. Try again."); } finally { setBusy(false); }
     }}>

@@ -1,8 +1,11 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, Menu } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BRAND } from "@/lib/demo-data";
+import { getAccountState } from "@/lib/account.functions";
+import { accountClient } from "@/lib/account-client";
 
 const nav = [
   { to: "/tutors", label: "Find a tutor" },
@@ -25,6 +28,11 @@ export function Logo() {
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const session = accountClient.useSession();
+  const state = useQuery({ queryKey: ["account-state"], queryFn: () => getAccountState(), retry: false, staleTime: 30_000 });
+  useEffect(() => { void state.refetch(); void router.invalidate(); }, [session.data?.user.id]);
+  const signedIn = Boolean(state.data?.account?.user.emailVerified);
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
@@ -37,6 +45,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
+          <Button variant="ghost" asChild><Link to={signedIn ? "/account" : "/auth"}>{signedIn ? "My account" : "Sign in"}</Link></Button>
           <Button variant="ghost" asChild><Link to="/apply">Teach with us</Link></Button>
           <Button asChild><Link to="/demo">Open demo</Link></Button>
         </div>
@@ -48,6 +57,7 @@ export function SiteHeader() {
             <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="block py-2 text-sm">{n.label}</Link>
           ))}
           <Link to="/apply" onClick={() => setOpen(false)} className="block py-2 text-sm">Teach with us</Link>
+          <Button variant="outline" asChild className="mt-2 w-full"><Link to={signedIn ? "/account" : "/auth"} onClick={() => setOpen(false)}>{signedIn ? "My account" : "Sign in"}</Link></Button>
           <Button asChild className="mt-2 w-full"><Link to="/demo">Open demo</Link></Button>
         </div>
       )}

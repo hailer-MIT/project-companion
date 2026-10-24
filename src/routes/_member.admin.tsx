@@ -1,0 +1,17 @@
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { PublicPage } from "@/components/site-chrome";
+import { SignOutButton } from "@/components/account-access";
+import { getPrivateAdmin, changePrivateApplication, resolvePrivateRequest } from "@/lib/private-admin.functions";
+import { accountHead } from "@/lib/account-meta";
+export const Route = createFileRoute("/_member/admin")({ beforeLoad: ({ context }) => { if (!context.account.roles.includes("admin")) throw redirect({ to: "/account" }); }, loader: () => getPrivateAdmin(), head: () => accountHead("Private administration", "Private tutor applications and Telegram requests at Bright Path Tutors."), component: Admin });
+function Admin() {
+  const data = Route.useLoaderData(); const router = useRouter(); const [busy, setBusy] = useState(false);
+  async function run(action: () => Promise<unknown>) { setBusy(true); try { await action(); await router.invalidate(); toast.success("Saved"); } catch (e) { toast.error(e instanceof Error ? e.message : "Unable to save."); } finally { setBusy(false); } }
+  return <PublicPage><section className="mx-auto max-w-6xl px-4 py-12"><div className="flex flex-wrap justify-between gap-4"><h1 className="text-3xl font-semibold">Private administration</h1><SignOutButton /></div>
+    <section className="mt-10"><h2 className="text-2xl font-semibold">Tutor applications</h2>{!data.applications.length && <p className="mt-5 text-muted-foreground">No applications yet.</p>}<div className="mt-6 divide-y">{data.applications.map((a) => <article key={a.id} className="flex flex-wrap justify-between gap-4 py-5"><div><h3 className="font-semibold">{a.name}</h3><p className="mt-1 text-sm text-muted-foreground">{a.subjects.join(", ")} · {a.experience} years</p><p className="mt-1 text-sm">{a.status}</p></div><div className="flex items-center gap-2"><Button disabled={busy || a.status === "approved"} onClick={() => { if (window.confirm(`Approve ${a.name}? Confirm required safeguarding checks are complete.`)) void run(() => changePrivateApplication({ data: { id: a.id, status: "approved" } })); }}>Approve</Button><Button variant="outline" disabled={busy || a.status === "rejected"} onClick={() => { if (window.confirm(`Reject ${a.name}'s application?`)) void run(() => changePrivateApplication({ data: { id: a.id, status: "rejected" } })); }}>Reject</Button></div></article>)}</div></section>
+    <section className="mt-12"><h2 className="text-2xl font-semibold">Telegram requests</h2>{!data.requests.length && <p className="mt-5 text-muted-foreground">No requests yet.</p>}<div className="mt-6 divide-y">{data.requests.map((r) => <article key={r.id} className="flex flex-wrap justify-between gap-4 py-5"><div className="min-w-0 flex-1"><h3 className="font-semibold">{r.name} · {r.kind}</h3><p className="mt-2 whitespace-pre-wrap break-words text-sm">{r.body}</p><p className="mt-2 text-xs text-muted-foreground">{r.status}</p></div><Button variant="outline" disabled={busy || r.status === "resolved"} onClick={() => void run(() => resolvePrivateRequest({ data: { id: r.id } }))}>{r.status === "resolved" ? "Handled" : "Mark handled"}</Button></article>)}</div></section>
+  </section></PublicPage>;
+}
