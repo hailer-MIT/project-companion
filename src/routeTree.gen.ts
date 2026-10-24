@@ -21,6 +21,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TutorsRouteImport } from './routes/tutors'
 import { Route as MemberAccountRouteImport } from './routes/_member.account'
+import { Route as MemberAdminRouteImport } from './routes/_member.admin'
 import { Route as DemoIndexRouteImport } from './routes/demo.index'
 import { Route as DemoAdminRouteImport } from './routes/demo.admin'
 import { Route as DemoParentRouteImport } from './routes/demo.parent'
@@ -90,6 +91,11 @@ const MemberAccountRoute = MemberAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => MemberRoute,
 } as any)
+const MemberAdminRoute = MemberAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => MemberRoute,
+} as any)
 const DemoIndexRoute = DemoIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/tutors': typeof TutorsRoute
   '/account': typeof MemberAccountRoute
+  '/admin': typeof MemberAdminRoute
   '/demo/admin': typeof DemoAdminRoute
   '/demo/parent': typeof DemoParentRoute
   '/demo/student': typeof DemoStudentRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/tutors': typeof TutorsRoute
   '/account': typeof MemberAccountRoute
+  '/admin': typeof MemberAdminRoute
   '/demo/admin': typeof DemoAdminRoute
   '/demo/parent': typeof DemoParentRoute
   '/demo/student': typeof DemoStudentRoute
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/tutors': typeof TutorsRoute
   '/_member/account': typeof MemberAccountRoute
+  '/_member/admin': typeof MemberAdminRoute
   '/demo/admin': typeof DemoAdminRoute
   '/demo/parent': typeof DemoParentRoute
   '/demo/student': typeof DemoStudentRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tutors'
     | '/account'
+    | '/admin'
     | '/demo/admin'
     | '/demo/parent'
     | '/demo/student'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tutors'
     | '/account'
+    | '/admin'
     | '/demo/admin'
     | '/demo/parent'
     | '/demo/student'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/tutors'
     | '/_member/account'
+    | '/_member/admin'
     | '/demo/admin'
     | '/demo/parent'
     | '/demo/student'
@@ -376,6 +388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MemberAccountRouteImport
       parentRoute: typeof MemberRoute
     }
+    '/_member/admin': {
+      id: '/_member/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof MemberAdminRouteImport
+      parentRoute: typeof MemberRoute
+    }
     '/demo/': {
       id: '/demo/'
       path: '/'
@@ -444,10 +463,12 @@ declare module '@tanstack/react-router' {
 
 interface MemberRouteChildren {
   MemberAccountRoute: typeof MemberAccountRoute
+  MemberAdminRoute: typeof MemberAdminRoute
 }
 
 const MemberRouteChildren: MemberRouteChildren = {
   MemberAccountRoute: MemberAccountRoute,
+  MemberAdminRoute: MemberAdminRoute,
 }
 
 const MemberRouteWithChildren =
