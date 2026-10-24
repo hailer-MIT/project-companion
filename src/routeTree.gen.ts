@@ -10,13 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MemberRouteImport } from './routes/_member'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ApplyRouteImport } from './routes/apply'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TutorsRouteImport } from './routes/tutors'
+import { Route as MemberAccountRouteImport } from './routes/_member.account'
+import { Route as MemberAdminRouteImport } from './routes/_member.admin'
 import { Route as DemoIndexRouteImport } from './routes/demo.index'
 import { Route as DemoAdminRouteImport } from './routes/demo.admin'
 import { Route as DemoParentRouteImport } from './routes/demo.parent'
@@ -32,6 +37,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MemberRoute = MemberRouteImport.update({
+  id: '/_member',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -40,6 +49,11 @@ const AboutRoute = AboutRouteImport.update({
 const ApplyRoute = ApplyRouteImport.update({
   id: '/apply',
   path: '/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -62,10 +76,25 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TutorsRoute = TutorsRouteImport.update({
   id: '/tutors',
   path: '/tutors',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MemberAccountRoute = MemberAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => MemberRoute,
+} as any)
+const MemberAdminRoute = MemberAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => MemberRoute,
 } as any)
 const DemoIndexRoute = DemoIndexRouteImport.update({
   id: '/',
@@ -118,11 +147,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRouteWithChildren
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/tutors': typeof TutorsRoute
+  '/account': typeof MemberAccountRoute
+  '/admin': typeof MemberAdminRoute
   '/demo/admin': typeof DemoAdminRoute
   '/demo/parent': typeof DemoParentRoute
   '/demo/student': typeof DemoStudentRoute
@@ -137,10 +170,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/tutors': typeof TutorsRoute
+  '/account': typeof MemberAccountRoute
+  '/admin': typeof MemberAdminRoute
   '/demo/admin': typeof DemoAdminRoute
   '/demo/parent': typeof DemoParentRoute
   '/demo/student': typeof DemoStudentRoute
@@ -154,13 +191,18 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_member': typeof MemberRouteWithChildren
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
+  '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
   '/demo': typeof DemoRouteWithChildren
   '/how-it-works': typeof HowItWorksRoute
   '/pricing': typeof PricingRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/tutors': typeof TutorsRoute
+  '/_member/account': typeof MemberAccountRoute
+  '/_member/admin': typeof MemberAdminRoute
   '/demo/admin': typeof DemoAdminRoute
   '/demo/parent': typeof DemoParentRoute
   '/demo/student': typeof DemoStudentRoute
@@ -177,11 +219,15 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/apply'
+    | '/auth'
     | '/contact'
     | '/demo'
     | '/how-it-works'
     | '/pricing'
+    | '/reset-password'
     | '/tutors'
+    | '/account'
+    | '/admin'
     | '/demo/admin'
     | '/demo/parent'
     | '/demo/student'
@@ -196,10 +242,14 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/apply'
+    | '/auth'
     | '/contact'
     | '/how-it-works'
     | '/pricing'
+    | '/reset-password'
     | '/tutors'
+    | '/account'
+    | '/admin'
     | '/demo/admin'
     | '/demo/parent'
     | '/demo/student'
@@ -212,13 +262,18 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_member'
     | '/about'
     | '/apply'
+    | '/auth'
     | '/contact'
     | '/demo'
     | '/how-it-works'
     | '/pricing'
+    | '/reset-password'
     | '/tutors'
+    | '/_member/account'
+    | '/_member/admin'
     | '/demo/admin'
     | '/demo/parent'
     | '/demo/student'
@@ -232,12 +287,15 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MemberRoute: typeof MemberRouteWithChildren
   AboutRoute: typeof AboutRoute
   ApplyRoute: typeof ApplyRoute
+  AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
   DemoRoute: typeof DemoRouteWithChildren
   HowItWorksRoute: typeof HowItWorksRoute
   PricingRoute: typeof PricingRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   TutorsRoute: typeof TutorsRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicAuthSplatRoute: typeof ApiPublicAuthSplatRoute
@@ -253,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_member': {
+      id: '/_member'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof MemberRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -265,6 +330,13 @@ declare module '@tanstack/react-router' {
       path: '/apply'
       fullPath: '/apply'
       preLoaderRoute: typeof ApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -295,12 +367,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tutors': {
       id: '/tutors'
       path: '/tutors'
       fullPath: '/tutors'
       preLoaderRoute: typeof TutorsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_member/account': {
+      id: '/_member/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof MemberAccountRouteImport
+      parentRoute: typeof MemberRoute
+    }
+    '/_member/admin': {
+      id: '/_member/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof MemberAdminRouteImport
+      parentRoute: typeof MemberRoute
     }
     '/demo/': {
       id: '/demo/'
@@ -368,6 +461,19 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface MemberRouteChildren {
+  MemberAccountRoute: typeof MemberAccountRoute
+  MemberAdminRoute: typeof MemberAdminRoute
+}
+
+const MemberRouteChildren: MemberRouteChildren = {
+  MemberAccountRoute: MemberAccountRoute,
+  MemberAdminRoute: MemberAdminRoute,
+}
+
+const MemberRouteWithChildren =
+  MemberRoute._addFileChildren(MemberRouteChildren)
+
 interface DemoRouteChildren {
   DemoAdminRoute: typeof DemoAdminRoute
   DemoParentRoute: typeof DemoParentRoute
@@ -390,12 +496,15 @@ const DemoRouteWithChildren = DemoRoute._addFileChildren(DemoRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MemberRoute: MemberRouteWithChildren,
   AboutRoute: AboutRoute,
   ApplyRoute: ApplyRoute,
+  AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
   DemoRoute: DemoRouteWithChildren,
   HowItWorksRoute: HowItWorksRoute,
   PricingRoute: PricingRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   TutorsRoute: TutorsRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicAuthSplatRoute: ApiPublicAuthSplatRoute,

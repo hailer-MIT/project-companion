@@ -42,3 +42,18 @@ Note: 750 free hours/month per account — enough for one always-on service only
 - [ ] Test bot answers `/start`; tap 🆘 Support and send a question
 - [ ] Submit a test tutor application on `/apply`
 - [ ] Neon → Tables → `tutor_applications` and `bot_requests` show the new rows
+
+## C. Account foundation — not activated yet
+
+The new `/auth`, `/account`, `/admin` and `/reset-password` pages use Better Auth.
+The public `/demo/admin` page still shows samples, not private records.
+Registration stays disabled until the required email/security settings are present.
+
+1. **Sending domain:** identify a domain you own, then verify its email DNS records in Resend. A domain must be verified before sending confirmations to families. The connected Resend account currently has no domains. Do not use the testing sender for public signups.
+2. **Account tables:** in the same Neon project/database as the deployed bot, run `database/004-accounts.sql`. It adds `bpt_*` tables; existing bot data and managed `neon_auth` tables are untouched. Keep a database backup first.
+3. **Host configuration:** `BETTER_AUTH_URL` must equal the exact site's HTTPS origin (no path); `BETTER_AUTH_SECRET` must be a securely generated secret of at least 32 characters; `AUTH_EMAIL_FROM` is a sender on the verified domain. Configure secrets only through hosting settings, never through chat.
+4. **Connector limitation:** account storage and email delivery currently depend on Lovable's linked Neon/Resend connections. Those project connection credentials are not the raw Neon URL or raw Resend provider key. They are not automatically transferred to Cloudflare by GitHub sync. External-host provisioning for those credentials must be verified before accounts can work there. Do not paste a provider key into a connector-key field or assume the existing `DATABASE_URL` enables accounts.
+5. **Initial administrator:** after deployment/email are ready, register the owner's account and confirm email. Verify that account in Neon before an owner-controlled administrator assignment. There is deliberately no public "become admin" command or shared admin password. Obtain the exact account-specific assignment instructions at that point.
+6. **Required checks:** verify signup confirmation, sign-in, reset link, sign-out (including Back), direct private access rejection, ordinary-account admin rejection, family acceptance/rejection and isolation, and deployed login CPU/errors. A homepage's 8 ms result does not establish login fits Workers Free. Keep strong password hashing; use Render if it does not fit.
+
+Photos are represented by a profile storage reference only; private file upload is a later R2 step. Family links currently grant no access to booking/progress records. No real-bot webhook change is included.

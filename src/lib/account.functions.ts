@@ -16,7 +16,11 @@ export const getPersonalAccount = createServerFn({ method: "GET" }).handler(asyn
   const profile = await accountSql("select display_name, photo_reference, preferences from public.bpt_profiles where user_id=$1 limit 1", [account.user.id]);
   const family = await accountSql("select r.id, u.name as student_name from public.bpt_family_relationships r join public.bpt_user u on u.id=r.student_id where r.parent_id=$1 and r.status='accepted' order by r.created_at desc limit 50", [account.user.id]);
   const invites = await accountSql("select i.id,u.name as parent_name from public.bpt_family_invitations i join public.bpt_user u on u.id=i.parent_id where i.student_email=lower($1) and i.status='pending' and i.expires_at>now() order by i.created_at desc limit 50", [account.user.email]);
-  return { account, profile: profile.rows[0] ?? null, family: family.rows, invites: invites.rows };
+  const p = profile.rows[0];
+  const preferences = p?.["preferences"] as { language?: string } | undefined;
+  return { account, profile: p ? { displayName: String(p["display_name"]), photoReference: p["photo_reference"] ? String(p["photo_reference"]) : null, language: preferences?.language === "am" ? "am" : "en" } : null,
+    family: family.rows.map((r) => ({ id: String(r["id"]), studentName: String(r["student_name"]) })),
+    invites: invites.rows.map((r) => ({ id: String(r["id"]), parentName: String(r["parent_name"]) })) };
 });
 export const savePersonalProfile = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ displayName: z.string().trim().min(2).max(120), language: z.enum(["en", "am"]) }).parse(d))
@@ -37,7 +41,8 @@ export const inviteStudent = createServerFn({ method: "POST" })
     const account = await requireAccount(getRequest().headers);
     if (!account.roles.includes("parent")) throw new Error("Parent access required.");
     if (account.user.email.toLowerCase() === data.email.toLowerCase()) throw new Error("Choose another account.");
-    await accountSql("insert into public.bpt_family_invitations(parent_id,student_email) select $1,lower($2) where (select count(*) from public.bpt_family_invitations where parent_id=$1 and created_at>now()-interval '1 day')<10 on conflict(parent_id,student_email) do update set status='pending',expires_at=now()+interval '7 days' returning id", [account.user.id, data.email]);
+    const result = await accountSql("insert into public.bpt_family_invitations(parent_id,student_email) select $1,lower($2) where (select count(*) from public.bpt_family_invitations where parent_id=$1 and created_at>now()-interval '1 day')<10 on conflict(parent_id,student_email) do nothing returning id", [account.user.id, data.email]);
+    if (!result.rows.length) throw new Error("This invitation already exists or the daily invitation limit was reached.");
     return { ok: true };
   });
 export const respondToFamilyInvite = createServerFn({ method: "POST" })
