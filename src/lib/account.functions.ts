@@ -16,7 +16,11 @@ export const getPersonalAccount = createServerFn({ method: "GET" }).handler(asyn
   const profile = await accountSql("select display_name, photo_reference, preferences from public.bpt_profiles where user_id=$1 limit 1", [account.user.id]);
   const family = await accountSql("select r.id, u.name as student_name from public.bpt_family_relationships r join public.bpt_user u on u.id=r.student_id where r.parent_id=$1 and r.status='accepted' order by r.created_at desc limit 50", [account.user.id]);
   const invites = await accountSql("select i.id,u.name as parent_name from public.bpt_family_invitations i join public.bpt_user u on u.id=i.parent_id where i.student_email=lower($1) and i.status='pending' and i.expires_at>now() order by i.created_at desc limit 50", [account.user.email]);
-  return { account, profile: profile.rows[0] ?? null, family: family.rows, invites: invites.rows };
+  const p = profile.rows[0];
+  const preferences = p?.["preferences"] as { language?: string } | undefined;
+  return { account, profile: p ? { displayName: String(p["display_name"]), photoReference: p["photo_reference"] ? String(p["photo_reference"]) : null, language: preferences?.language === "am" ? "am" : "en" } : null,
+    family: family.rows.map((r) => ({ id: String(r["id"]), studentName: String(r["student_name"]) })),
+    invites: invites.rows.map((r) => ({ id: String(r["id"]), parentName: String(r["parent_name"]) })) };
 });
 export const savePersonalProfile = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ displayName: z.string().trim().min(2).max(120), language: z.enum(["en", "am"]) }).parse(d))

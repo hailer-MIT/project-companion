@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { kyselyAdapter } from "better-auth/adapters/kysely-adapter";
+import { kyselyAdapter } from "@better-auth/kysely-adapter";
 import { accountSql, createAccountDatabase } from "./account-db.server";
 import { assertAdmin, assertVerified } from "./account-policy";
 
@@ -43,7 +43,7 @@ export async function readAccount(headers: Headers) {
   const session = await createAccounts().api.getSession({ headers });
   if (!session) return null;
   const result = await accountSql("select role from public.bpt_roles where user_id=$1 limit 10", [session.user.id]);
-  return { user: { id: session.user.id, name: session.user.name, email: session.user.email, emailVerified: session.user.emailVerified }, roles: result.rows.map((r) => String(r.role)) };
+  return { user: { id: session.user.id, name: session.user.name, email: session.user.email, emailVerified: session.user.emailVerified }, roles: result.rows.map((r) => String(r["role"])) };
 }
 export async function requireAccount(headers: Headers, admin = false) {
   const account = await readAccount(headers);

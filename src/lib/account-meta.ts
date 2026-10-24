@@ -1,0 +1,3 @@
+export function accountHead(title: string, description: string) {
+  return { meta: [{ title: `${title} | Bright Path Tutors` }, { name: "description", content: description }, { property: "og:title", content: `${title} | Bright Path Tutors` }, { property: "og:description", content: description }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, { name: "robots", content: "noindex, nofollow" }] };
+}

@@ -26,10 +26,10 @@ class Connection implements DatabaseConnection {
       const converted = { ...row };
       for (const name of dates) if (typeof converted[name] === "string") converted[name] = new Date(String(converted[name]));
       // Better Auth's rate limiter expects epoch milliseconds as a number.
-      if (typeof converted.lastRequest === "string") converted.lastRequest = Number(converted.lastRequest);
+      if (typeof converted["lastRequest"] === "string") converted["lastRequest"] = Number(converted["lastRequest"]);
       return converted as R;
     });
-    return { rows, numAffectedRows: result.command === "SELECT" ? undefined : BigInt(result.rowCount ?? 0) };
+    return result.command === "SELECT" ? { rows } : { rows, numAffectedRows: BigInt(result.rowCount ?? 0) };
   }
   async *streamQuery<R>(query: CompiledQuery): AsyncIterableIterator<QueryResult<R>> { yield await this.executeQuery<R>(query); }
 }
