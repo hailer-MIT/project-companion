@@ -11,19 +11,22 @@ describe("AgentCourier account email transport", () => {
   it("uses the documented send API for verification and recovery without Resend", async () => {
     configure(); vi.stubEnv("RESEND_API_KEY", ""); vi.stubEnv("LOVABLE_API_KEY", "");
     expect(accountEmailConfigured()).toBe(true);
-    const request = vi.fn().mockResolvedValue(Response.json({ status: "queued" }, { status: 201 }));
+    const request = vi.fn().mockImplementation(async () => Response.json({ status: "queued" }, { status: 201 }));
     vi.stubGlobal("fetch", request);
     await sendAccountEmail("test@example.test", "https://example.test/verify?token=fake", false);
     await sendAccountEmail("test@example.test", "https://example.test/reset?token=fake", true);
     expect(request).toHaveBeenCalledTimes(2);
-    const [endpoint, options] = request.mock.calls[0];
+    const first = request.mock.calls[0];
+    const second = request.mock.calls[1];
+    if (!first || !second) throw new Error("Both email requests must be captured.");
+    const [endpoint, options] = first;
     expect(endpoint).toBe("https://api.apimail.cc/v1/messages/send");
     expect(options.headers["X-API-Key"]).toBe("test-only-key");
     const body = JSON.parse(options.body);
     expect(body.from).toBe("accounts@brightpathtutors.de5.net");
     expect(body.to).toEqual(["test@example.test"]);
     expect(body.body_text).toContain("https://example.test/verify?token=fake");
-    expect(JSON.parse(request.mock.calls[1][1].body).body_text).toContain("https://example.test/reset?token=fake");
+    expect(JSON.parse(second[1].body).body_text).toContain("https://example.test/reset?token=fake");
   });
   it("fails closed without the selected provider key even when Resend is present", async () => {
     configure(); vi.stubEnv("AGENTCOURIER_API_KEY", ""); vi.stubEnv("RESEND_API_KEY", "test-only-other-key");
