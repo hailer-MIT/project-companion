@@ -1,5 +1,6 @@
 
 ## Backlog
+- [ ] Evaluate Mailkite/AgentCourier for account emails using the existing free DNSHE domain; blocked on confirming the intended provider and its acceptance of the actual sending hostname. MailKite documents transactional sending but advertises card-required paid plans; AgentCourier advertises Free but DNSHE acceptance and the transactional send contract remain unverified. Do not activate or replace Resend until verified.
 - [x] Review and approve the low-cost stack and staged implementation plan.
 - [x] Lock live admin endpoints, remove Telegram self-granted administration, and pause alerts to unverified legacy recipients; preserve sample dashboards.
 - [x] Choose free host: Cloudflare Workers Free (Render Free + ping as backup); Workers build, health check, guide added.
