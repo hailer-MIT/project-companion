@@ -20,3 +20,4 @@
 - Portable accounts use request-scoped Better Auth, the supported Kysely adapter and server-only Neon gateway transport; HTTP interactive transactions are rejected, and cross-table lifecycle writes use SQL triggers or single-statement CTEs for atomicity.
 - Better Auth roles are in protected bpt_roles, separate from profiles; every private account/admin function validates a verified cookie session and authorizes the action independently of the _member UI gate. Existing legacy admin functions remain closed.
 - Account schema changes are additive and versioned in database/; do not alter managed neon_auth tables. Account secrets, email delivery and external-host credential wiring must be verified before enabling registration.
+- Account email transport lives in a server-only helper with explicit provider selection and fixed documented endpoints; missing credentials or provider rejection never fall back to another sender, preserving security and hosting portability.
