@@ -29,11 +29,6 @@ export async function accountSql(query: string, params: unknown[] = []): Promise
     headers: { Authorization: `Bearer ${apiKey}`, "X-Connection-Api-Key": connectionKey, "Content-Type": "application/json" },
     body: JSON.stringify({ query, params: values }),
   });
-  const response = await fetch("https://connector-gateway.lovable.dev/neon/sql", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "X-Connection-Api-Key": connectionKey, "Content-Type": "application/json" },
-    body: JSON.stringify({ query, params: params.map((p) => p instanceof Date ? p.toISOString() : p) }),
-  });
   if (!response.ok) {
     // Never log parameters: auth queries contain passwords, session and reset tokens.
     throw new Error(`Account database request failed (${response.status}). Refresh before retrying a change.`);
