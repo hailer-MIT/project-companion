@@ -1,11 +1,11 @@
 import { betterAuth } from "better-auth";
 import { kyselyAdapter } from "@better-auth/kysely-adapter";
-import { accountSql, createAccountDatabase } from "./account-db.server";
+import { accountDbConfigured, accountSql, createAccountDatabase } from "./account-db.server";
 import { assertAdmin, assertVerified } from "./account-policy";
 import { accountEmailConfigured, sendAccountEmail } from "./account-email.server";
 
 export function accountsConfigured() {
-  return Boolean(process.env["BETTER_AUTH_SECRET"] && process.env["BETTER_AUTH_URL"] && process.env["NEON_API_KEY"] && process.env["LOVABLE_API_KEY"] && accountEmailConfigured());
+  return Boolean(process.env["BETTER_AUTH_SECRET"] && process.env["BETTER_AUTH_URL"] && accountDbConfigured() && accountEmailConfigured());
 }
 
 export function createAccounts() {
