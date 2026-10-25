@@ -1,9 +1,18 @@
 {
   // Cloudflare Workers config for `npm run build:workers` + `npx wrangler deploy`.
-  "name": "bright-path-tutors",
+  // Name must match the live Worker, or dashboard/Git deploys fail.
+  "name": "bright-path-tutors-normal",
   "main": ".output/server/index.mjs",
   "compatibility_date": "2025-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "directory": ".output/public" },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // Keep variables added in the dashboard; secrets always persist.
+  "keep_vars": true,
+  // Non-secret settings. Private values stay as dashboard Secrets.
+  "vars": {
+    "AUTH_EMAIL_PROVIDER": "agentcourier",
+    "AUTH_EMAIL_FROM": "accounts@brightpathtutors.de5.net",
+    "BETTER_AUTH_URL": "https://bright-path-tutors-normal.hailomasegede.workers.dev"
+  }
 }
